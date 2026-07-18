@@ -1,0 +1,107 @@
+/* Schriften liegen lokal unter fonts/, damit die App offline identisch aussieht und
+   beim Start nichts an Google sendet. Bitter und PT Serif stehen unter der SIL Open
+   Font License, siehe fonts/OFL.txt.
+   unicode-range laesst den Browser nur laden, was der Text wirklich braucht: latin
+   fuer Deutsch, latin-ext fuer serbisches Latein (č ć š ž đ), cyrillic fuer Ćirilica.
+   Bitter ist ein Variable Font, 600 und 700 teilen sich dieselbe Datei. */
+@font-face{font-family:'Bitter';font-style:normal;font-weight:600;font-display:swap;src:url(../fonts/bitter-cyrillic.woff2) format('woff2');unicode-range:U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;}
+@font-face{font-family:'Bitter';font-style:normal;font-weight:600;font-display:swap;src:url(../fonts/bitter-latin-ext.woff2) format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;}
+@font-face{font-family:'Bitter';font-style:normal;font-weight:600;font-display:swap;src:url(../fonts/bitter-latin.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
+@font-face{font-family:'Bitter';font-style:normal;font-weight:700;font-display:swap;src:url(../fonts/bitter-cyrillic.woff2) format('woff2');unicode-range:U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;}
+@font-face{font-family:'Bitter';font-style:normal;font-weight:700;font-display:swap;src:url(../fonts/bitter-latin-ext.woff2) format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;}
+@font-face{font-family:'Bitter';font-style:normal;font-weight:700;font-display:swap;src:url(../fonts/bitter-latin.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
+@font-face{font-family:'PT Serif';font-style:normal;font-weight:400;font-display:swap;src:url(../fonts/ptserif-400-cyrillic.woff2) format('woff2');unicode-range:U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;}
+@font-face{font-family:'PT Serif';font-style:normal;font-weight:400;font-display:swap;src:url(../fonts/ptserif-400-latin-ext.woff2) format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;}
+@font-face{font-family:'PT Serif';font-style:normal;font-weight:400;font-display:swap;src:url(../fonts/ptserif-400-latin.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
+@font-face{font-family:'PT Serif';font-style:normal;font-weight:700;font-display:swap;src:url(../fonts/ptserif-700-cyrillic.woff2) format('woff2');unicode-range:U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;}
+@font-face{font-family:'PT Serif';font-style:normal;font-weight:700;font-display:swap;src:url(../fonts/ptserif-700-latin-ext.woff2) format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;}
+@font-face{font-family:'PT Serif';font-style:normal;font-weight:700;font-display:swap;src:url(../fonts/ptserif-700-latin.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
+:root{
+  --vok-bg:#EDE6D3;
+  --vok-card:#F8F4E9;
+  --vok-ink:#2B2620;
+  --vok-ink-soft:#5C5548;
+  --vok-red:#A61C3C;
+  --vok-red-dark:#7A1329;
+  --vok-gold:#B8863B;
+  --vok-line:#D9CFB4;
+  --vok-due-bg:#FAEEDA;
+  --vok-due-fg:#633806;
+  --vok-ok-bg:#E1F5EE;
+  --vok-ok-fg:#085041;
+}
+/* Bitter ersetzt bei lang="sr" ueber die OpenType-Funktion "locl" т und д durch die
+   serbischen Kursivformen (т wird zu ш mit Strich, д wird zu g). Diese Formen gehoeren
+   nur in kursiven Text, in aufrechtem sind sie falsch. locl abschalten statt lang
+   aendern, denn lang="sr" ist inhaltlich korrekt.
+   Muss auf * stehen, nicht auf body: Buttons, Inputs und Selects erben keine
+   Font-Eigenschaften, das UA-Stylesheet setzt dort die font-Kurzschreibweise und
+   damit font-feature-settings auf normal zurueck. */
+*{box-sizing:border-box;font-feature-settings:"locl" 0}
+body{margin:0;background:var(--vok-bg);min-height:100vh;padding:1.5rem 0}
+.vok-wrap{background:var(--vok-bg);border-radius:16px;padding:1.75rem 1.5rem;font-family:'PT Serif',serif;color:var(--vok-ink);max-width:680px;margin:0 auto}
+.vok-h{font-family:'Bitter',serif;font-weight:700;font-size:22px;color:var(--vok-ink);margin:0}
+.vok-sub{font-size:13px;color:var(--vok-ink-soft);margin:2px 0 0}
+.vok-input{width:100%;background:var(--vok-card);border:1px solid var(--vok-line);border-radius:8px;padding:9px 10px;font-family:'PT Serif',serif;font-size:15px;color:var(--vok-ink)}
+.vok-input:focus{outline:none;border-color:var(--vok-red)}
+.vok-select{background:var(--vok-card);border:1px solid var(--vok-line);border-radius:8px;padding:8px 10px;font-family:'PT Serif',serif;font-size:13px;color:var(--vok-ink)}
+.vok-btn{font-family:'Bitter',serif;font-weight:600;font-size:13px;background:var(--vok-red);color:#F8F0E4;border:none;border-radius:8px;padding:9px 16px;cursor:pointer}
+.vok-btn:hover{background:var(--vok-red-dark)}
+.vok-btn:disabled{opacity:.5;cursor:default}
+.vok-btn-ghost{font-family:'Bitter',serif;font-weight:600;font-size:12px;background:transparent;color:var(--vok-ink-soft);border:1px solid var(--vok-line);border-radius:8px;padding:7px 12px;cursor:pointer}
+.vok-btn-ghost.active,.vok-btn-ghost:hover{border-color:var(--vok-red);color:var(--vok-red)}
+.vok-icon-btn{font-family:'PT Serif',serif;font-size:12px;background:transparent;border:1px solid var(--vok-line);color:var(--vok-ink-soft);border-radius:6px;padding:4px 9px;cursor:pointer}
+.vok-icon-btn:hover{border-color:var(--vok-red);color:var(--vok-red)}
+.vok-icon-btn.danger:hover{border-color:#a61c3c;color:#a61c3c}
+.vok-card{background:var(--vok-card);border:1px solid var(--vok-line);border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.vok-word{font-family:'Bitter',serif;font-weight:700;font-size:17px;margin:0}
+.vok-trans{font-size:14px;color:var(--vok-ink-soft);margin:2px 0 0}
+.vok-tag{font-size:11px;font-weight:600;border-radius:6px;padding:3px 8px;white-space:nowrap}
+.vok-cat-chip{font-size:10px;font-weight:600;border-radius:10px;padding:2px 8px;background:var(--vok-gold);color:#3a2a0a;white-space:nowrap;display:inline-block;margin:4px 4px 0 0}
+.vok-empty{text-align:center;color:var(--vok-ink-soft);font-size:14px;padding:20px 0}
+/* Main menu and screen navigation */
+.vok-menu{display:flex;flex-direction:column;gap:10px}
+.vok-menu-tile{background:var(--vok-card);border:1px solid var(--vok-line);border-radius:10px;padding:14px 16px;cursor:pointer;text-align:left;width:100%}
+.vok-menu-tile:hover{border-color:var(--vok-red)}
+.vok-menu-title{display:block;font-family:'Bitter',serif;font-weight:700;font-size:16px;color:var(--vok-ink)}
+.vok-screen-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.vok-dir-toggle{display:flex;gap:8px}
+.vok-pane{display:none}
+.vok-pane.active{display:block}
+.vok-bars{display:flex;align-items:flex-end;gap:6px;height:110px;margin:10px 0 4px;padding:0 2px}
+.vok-bar-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
+.vok-bar{width:100%;max-width:26px;background:var(--vok-red);border-radius:4px 4px 0 0;min-height:2px}
+.vok-bar-label{font-size:10px;color:var(--vok-ink-soft);margin-top:4px;white-space:nowrap}
+.vok-status{font-size:12px;color:var(--vok-ink-soft);margin-top:8px;min-height:16px}
+.vok-subh{font-family:'Bitter',serif;font-weight:700;font-size:15px;margin:0 0 8px}
+.vok-subtab{font-family:'Bitter',serif;font-weight:600;font-size:12px;background:var(--vok-card);border:1px solid var(--vok-line);color:var(--vok-ink-soft);border-radius:20px;padding:6px 14px;cursor:pointer}
+.vok-subtab.active{background:var(--vok-red);border-color:var(--vok-red);color:#F8F0E4}
+.vok-subpane{display:none}
+.vok-subpane.active{display:block}
+.vok-sub-de{display:block;font-size:9px;font-weight:400;font-family:'PT Serif',serif;opacity:.65;margin-top:2px;letter-spacing:0}
+.vok-edit-row{background:var(--vok-card);border:1px solid var(--vok-red);border-radius:10px;padding:12px 14px;margin-bottom:8px}
+.vok-edit-row input{margin-bottom:6px}
+/* Practice tiles: scrolls horizontally only once tiles overflow */
+.vok-mode-row{display:flex;gap:10px;overflow-x:auto;margin-bottom:14px;padding-bottom:4px;scrollbar-width:none}
+.vok-mode-row::-webkit-scrollbar{display:none}
+.vok-mode-tile{flex:0 0 auto;width:220px;background:var(--vok-card);border:1px solid var(--vok-line);border-radius:10px;padding:12px 14px;cursor:pointer}
+.vok-mode-tile.selected{border-color:var(--vok-red)}
+.vok-mode-tile-title{font-family:'Bitter',serif;font-weight:700;font-size:15px;margin:0;color:var(--vok-ink)}
+.vok-tile-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.vok-tile-opts{display:none;margin-top:10px}
+.vok-mode-tile.selected .vok-tile-opts{display:block}
+.vok-tile-opts .vok-select{width:100%}
+.vok-install{background:var(--vok-card);border:1px solid var(--vok-line);border-radius:10px;padding:12px 14px;margin-bottom:16px;display:flex;flex-direction:column;gap:10px}
+
+/* Kopfzeile mit Konto-Status */
+.vok-account{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.vok-badge{font-size:11px;font-weight:600;border-radius:20px;padding:3px 10px;background:var(--vok-card);border:1px solid var(--vok-line);color:var(--vok-ink-soft)}
+.vok-badge.cloud{background:var(--vok-ok-bg);color:var(--vok-ok-fg);border-color:transparent}
+
+/* Login-Screen */
+.vok-login{max-width:420px;margin:0 auto}
+.vok-login .vok-card{flex-direction:column;align-items:stretch;gap:10px;padding:18px}
+.vok-login input{margin-bottom:0}
+.vok-login-hint{font-size:12px;color:var(--vok-ink-soft);text-align:center;margin:6px 0 0}
+.vok-divider{display:flex;align-items:center;gap:10px;color:var(--vok-ink-soft);font-size:12px;margin:14px 0}
+.vok-divider::before,.vok-divider::after{content:'';flex:1;height:1px;background:var(--vok-line)}

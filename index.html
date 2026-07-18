@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="sr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Палатица — Српски вокабулар</title>
+<link rel="stylesheet" href="css/styles.css" />
+<link rel="manifest" href="manifest.json" />
+<meta name="theme-color" content="#A61C3C" />
+<link rel="icon" href="icons/icon-192.png" />
+<link rel="apple-touch-icon" href="icons/icon-192.png" />
+</head>
+<body>
+
+<!-- Kein Login-Gate: Die App startet direkt lokal. Die Cloud ist ein optionaler
+     Knopf oben rechts und fuer den normalen Betrieb ohne Bedeutung. -->
+<div id="vok-app" class="vok-wrap">
+  <div class="vok-account">
+    <span class="vok-badge" id="vok-mode-badge"></span>
+    <button class="vok-icon-btn" id="vok-cloud-btn">&#9729; Синхронизација<span class="vok-sub-de">Cloud-Sync (optional)</span></button>
+  </div>
+
+  <div id="vok-cloud-panel" class="vok-card" style="display:none;flex-direction:column;align-items:stretch;gap:8px">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+      <p class="vok-subh" style="margin:0">Синхронизација између уређаја<span class="vok-sub-de" style="display:block">Geräte-Sync über deine eigene Supabase. Rein optional.</span></p>
+      <button class="vok-icon-btn" id="vok-cloud-close">&#10005;</button>
+    </div>
+
+    <!-- 1. Noch kein Zugang auf diesem Geraet -->
+    <div id="vok-cloud-setup" style="display:none">
+      <p class="vok-status" style="margin:0 0 6px">
+        Die App braucht das nicht. Wer seinen Lernstand über mehrere Geräte teilen will,
+        legt ein eigenes kostenloses Supabase-Projekt an und trägt hier dessen Zugang ein.
+        Die Daten liegen dann in deinem Projekt, nicht bei jemand anderem.
+      </p>
+      <input id="vok-cloud-url" class="vok-input" style="margin-bottom:6px" placeholder="Project URL (https://xxxx.supabase.co)" />
+      <input id="vok-cloud-key" class="vok-input" style="margin-bottom:6px" placeholder="anon public key" />
+      <button class="vok-btn" id="vok-cloud-save">Сачувај приступ<span class="vok-sub-de">Zugang speichern</span></button>
+    </div>
+
+    <!-- 2. Zugang da, noch nicht angemeldet -->
+    <div id="vok-cloud-login" style="display:none">
+      <input id="vok-cloud-email" class="vok-input" type="email" style="margin-bottom:6px" placeholder="E-Mail" autocomplete="email" />
+      <input id="vok-cloud-pw" class="vok-input" type="password" style="margin-bottom:6px" placeholder="Passwort" autocomplete="current-password" />
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="vok-btn" id="vok-cloud-signin" style="flex:1">Пријава<span class="vok-sub-de">Anmelden</span></button>
+        <button class="vok-btn-ghost" id="vok-cloud-signup" style="flex:1">Регистрација<span class="vok-sub-de">Registrieren</span></button>
+      </div>
+      <button class="vok-btn-ghost" id="vok-cloud-magic" style="margin-top:6px;width:100%">Магични линк<span class="vok-sub-de">Magic Link per E-Mail</span></button>
+    </div>
+
+    <!-- 3. Angemeldet -->
+    <div id="vok-cloud-account" style="display:none">
+      <p class="vok-trans" style="margin:0 0 8px">Пријављен: <strong id="vok-cloud-email-shown"></strong></p>
+      <button class="vok-btn-ghost" id="vok-cloud-push" style="width:100%;margin-bottom:6px">Пренеси локалне податке у облак<span class="vok-sub-de">Lokale Daten in die Cloud übernehmen (überschreibt nichts)</span></button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="vok-btn-ghost" id="vok-cloud-signout" style="flex:1">Одјава<span class="vok-sub-de">Abmelden</span></button>
+        <button class="vok-icon-btn danger" id="vok-cloud-forget" style="flex:1">Уклони приступ<span class="vok-sub-de">Zugang von diesem Gerät entfernen</span></button>
+      </div>
+    </div>
+
+    <p class="vok-status" id="vok-cloud-status"></p>
+  </div>
+
+  <p class="vok-h">Палатица</p>
+  <p class="vok-sub">Зрно по зрно погача, камен по камен палата</p>
+
+  <svg width="100%" height="10" viewBox="0 0 400 10" preserveAspectRatio="none" style="margin:14px 0;opacity:.55">
+    <path d="M0,8 L10,0 M12,8 L22,0 M24,8 L34,0 M36,8 L46,0 M48,8 L58,0 M60,8 L70,0 M72,8 L82,0 M84,8 L94,0 M96,8 L106,0 M108,8 L118,0 M120,8 L130,0 M132,8 L142,0 M144,8 L154,0 M156,8 L166,0 M168,8 L178,0 M180,8 L190,0 M192,8 L202,0 M204,8 L214,0 M216,8 L226,0 M228,8 L238,0 M240,8 L250,0 M252,8 L262,0 M264,8 L274,0 M276,8 L286,0 M288,8 L298,0 M300,8 L310,0 M312,8 L322,0 M324,8 L334,0 M336,8 L346,0 M348,8 L358,0 M360,8 L370,0 M372,8 L382,0 M384,8 L394,0" stroke="#A61C3C" stroke-width="1" fill="none"/>
+  </svg>
+
+  <div id="vok-install"></div>
+
+  <div id="vok-stats" style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap"></div>
+
+  <div id="vok-panes"></div>
+</div>
+
+<!-- Nur sichtbar, wenn die Seite per file:// geoeffnet wurde. Sonst versteckt. -->
+<div id="vok-file-hint" class="vok-wrap" style="display:none">
+  <p class="vok-h">Палатица</p>
+  <p class="vok-sub" style="margin-bottom:14px">Ова страница се мора отворити преко сервера, не двокликом.</p>
+  <div class="vok-card" style="flex-direction:column;align-items:stretch;gap:8px">
+    <p class="vok-status" style="margin:0">
+      Per Doppelklick geöffnet (file://) blockiert der Browser die ES-Module, die Seite
+      bliebe leer. Starte den lokalen Server und öffne die Adresse im Browser:
+    </p>
+    <p class="vok-word" style="font-size:15px;margin:0">python serve.py &rarr; http://localhost:8080</p>
+    <p class="vok-status" style="margin:0">Oder nutze die gehostete Version.</p>
+  </div>
+</div>
+
+<!-- Klassisches Skript, kein Modul: file:// hat keinen Origin, dort scheitern Module an
+     CORS und liefen gar nicht erst. Dieser Zweig zeigt dann den Hinweis oben statt einer
+     weissen Seite. Ueber http/https tut er nichts. -->
+<script>
+if(location.protocol === 'file:'){
+  var vokApp = document.getElementById('vok-app');
+  var vokHint = document.getElementById('vok-file-hint');
+  if(vokApp) vokApp.style.display = 'none';
+  if(vokHint) vokHint.style.display = '';
+}
+</script>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
