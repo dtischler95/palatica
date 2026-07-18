@@ -47,6 +47,7 @@ Vanilla JavaScript, ES modules, no framework, no bundler. The entry page loads a
 
 Cloud sync is off by default. Your data stays in `localStorage` until you enable it. If you want cross-device syncing, create your own free Supabase project, run `supabase/schema.sql` against it, and enter the project URL and anon key in the cloud panel.
 
+
 ## License
 
 This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
