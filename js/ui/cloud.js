@@ -48,14 +48,19 @@ export const cloud = (function(){
 
     // 1. Save credentials
     util.el('vok-cloud-save').addEventListener('click', function(){
-      var url = util.el('vok-cloud-url').value.trim();
+      var raw = util.el('vok-cloud-url').value.trim();
       var key = util.el('vok-cloud-key').value.trim();
-      if(!url || !key){ status('URL und anon key eintragen.'); return; }
-      if(!/^https:\/\/.+\.supabase\.co\/?$/.test(url)){
+      if(!raw || !key){ status('URL und Key eintragen.'); return; }
+      // Data API tab shows the full REST endpoint (.../rest/v1/); the library
+      // wants just the origin and appends the path itself. Normalize to origin
+      // so both forms paste cleanly.
+      var origin;
+      try{ origin = new URL(raw).origin; } catch(e){ origin = ''; }
+      if(!/^https:\/\/.+\.supabase\.co$/.test(origin)){
         status('Die URL sieht nicht nach einem Supabase-Projekt aus (https://xxx.supabase.co).');
         return;
       }
-      config.set(url.replace(/\/$/, ''), key);
+      config.set(origin, key);
       supabase.reset();
       util.el('vok-cloud-key').value = '';
       status('Zugang gespeichert. Jetzt anmelden.');
