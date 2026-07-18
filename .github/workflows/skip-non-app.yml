@@ -1,0 +1,14 @@
+name: Skip non-app changes
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - '**/*.md'
+      - '.github/FUNDING.yml'
+
+jobs:
+  noop:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Skipping workflow run for documentation or funding-only changes"
