@@ -1,5 +1,14 @@
-# Palatica
 
+<div align="center">
+  <a href="https://supabase.com/"><img alt="Supabase" src="https://img.shields.io/badge/Supabase-Optional%20Sync-3B82F6?style=flat-square" /></a>
+  <a href="https://developer.mozilla.org/docs/Web/JavaScript"><img alt="JavaScript" src="https://img.shields.io/badge/JavaScript-Vanilla-FFD54F?style=flat-square&logo=javascript&logoColor=black" /></a>
+  <a href="https://en.wikipedia.org/wiki/Progressive_web_app"><img alt="PWA" src="https://img.shields.io/badge/PWA-Installable-4CAF50?style=flat-square" /></a>
+  <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/License-MIT-2F80ED?style=flat-square" /></a>
+  <a href="fonts/OFL.txt"><img alt="Fonts" src="https://img.shields.io/badge/Fonts-SIL%20OFL-8E24AA?style=flat-square" /></a>
+</div>
+
+
+## Palatica
 Vocabulary trainer for Serbian with spaced repetition. Bilingual UI (Cyrillic
 with a German subline), offline-first PWA, no account required.
 
@@ -15,7 +24,7 @@ Most of the code here was written with it.
 
 ## Features
 
-- Two collections: words and constructions/phrases
+- Two collections: words and sentences/phrases
 - Spaced repetition scheduling (`SCHEDULE = [1,3,7,14,30,60,120]`)
 - Card mode and fill-in-the-blank mode
 - Fully offline once loaded, installable as a PWA
@@ -47,5 +56,8 @@ right). Your data lives in your own project, not mine.
 
 ## License
 
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
+
 The bundled fonts under `fonts/` are licensed separately under the SIL Open
-Font License — see `fonts/OFL.txt`.
+Font License — see [fonts/OFL.txt](fonts/OFL.txt).
+
