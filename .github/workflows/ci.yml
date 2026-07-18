@@ -3,7 +3,13 @@ name: CI
 on:
   push:
     branches: [master, main]
+    paths-ignore:
+      - '**/*.md'
+      - '.github/FUNDING.yml'
   pull_request:
+    paths-ignore:
+      - '**/*.md'
+      - '.github/FUNDING.yml'
 
 jobs:
   checks:
