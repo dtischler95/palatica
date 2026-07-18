@@ -1,25 +1,28 @@
--- Palatica: Schema fuer Supabase (Postgres).
--- Einmal im SQL-Editor des Supabase-Projekts ausfuehren.
--- Die Trennung pro Nutzer wird ueber Row Level Security durchgesetzt, nicht im Frontend.
+-- Palatica schema for Supabase (Postgres).
+-- Run once in the project's SQL editor.
+-- Row Level Security is what keeps the public anon key safe: without it, anyone
+-- holding the frontend-visible key could read and write every row. Per-user rows
+-- fall out of that for free and let a second person learn on the same DB with
+-- their own separate progress.
 
 create table if not exists entries (
   id            uuid primary key default gen_random_uuid(),
   user_id       uuid not null default auth.uid() references auth.users(id) on delete cascade,
-  -- Bewusst ohne CHECK: welche Sammlungen es gibt, steht in js/collections.js.
-  -- Eine neue Sammlung soll keine Migration kosten.
+  -- No CHECK on kind: the set of collections lives in js/collections.js, a new
+  -- one should not cost a migration.
   kind          text not null,
   word          text not null,
   trans         text not null,
   ex            text not null default '',
   tags          text[] not null default '{}',
   reps          int  not null default 0,
-  -- "interval" ist in Postgres reserviert, daher interval_days.
+  -- "interval" is reserved in Postgres, hence interval_days.
   interval_days int  not null default 0,
   due_at        timestamptz not null default now(),
   learned_at    timestamptz,
   added_at      timestamptz not null default now(),
-  -- Freier Sack fuer spaetere Zusatzdaten pro Eintrag (Bild-Pfad, Audio, Notiz),
-  -- damit solche Erweiterungen ohne Schema-Aenderung auskommen.
+  -- Free-form space for later per-entry data (image path, audio, note), so such
+  -- additions need no schema change.
   meta          jsonb not null default '{}'::jsonb
 );
 
@@ -35,7 +38,7 @@ create table if not exists history (
 alter table entries enable row level security;
 alter table history enable row level security;
 
--- Jeder Nutzer sieht und aendert ausschliesslich eigene Zeilen.
+-- Each user sees and changes only their own rows.
 drop policy if exists "own entries" on entries;
 create policy "own entries" on entries
   for all
