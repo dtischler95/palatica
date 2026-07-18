@@ -1,0 +1,15 @@
+# Lokale Arbeitsanweisung für Claude Code, gehört nicht ins öffentliche Repo.
+CLAUDE.md
+.claude/
+
+# JetBrains
+.idea/
+
+# Backups, die die App exportiert. Enthalten den kompletten Lernstand und dürfen
+# niemals versehentlich im Repo landen.
+palatica-*.json
+
+# Windows / macOS
+Thumbs.db
+desktop.ini
+.DS_Store
