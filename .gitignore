@@ -13,3 +13,6 @@ palatica-*.json
 Thumbs.db
 desktop.ini
 .DS_Store
+
+# Python-Bytecode vom lokalen Lauf der CI-Skripte.
+__pycache__/

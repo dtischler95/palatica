@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Parse-only check. The throwaway package.json makes node parse the files as ES modules.
+      - name: JS syntax check
+        run: |
+          echo '{"type":"module"}' > package.json
+          for f in $(find js -name '*.js') sw.js; do
+            node --check "$f"
+          done
+          rm package.json
+
+      - name: Service worker asset list check
+        run: python3 scripts/check_assets.py
+
+      - name: Python compile check
+        run: python3 -m py_compile serve.py scripts/check_assets.py
+
+      # Cached files changed without a VERSION bump would strand users on stale caches.
+      - name: VERSION bump check
+        if: github.event_name == 'pull_request'
+        run: |
+          BASE="origin/${{ github.base_ref }}"
+          CHANGED=$(git diff --name-only "$BASE"...HEAD)
+          CACHED=$(echo "$CHANGED" | grep -E '^(index\.html|manifest\.json|css/|js/|fonts/|icons/)' || true)
+          if [ -n "$CACHED" ] && ! git diff "$BASE"...HEAD -- sw.js | grep -q '^+var VERSION'; then
+            echo "Cached files changed but VERSION in sw.js was not bumped:"
+            echo "$CACHED"
+            exit 1
+          fi
