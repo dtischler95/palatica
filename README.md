@@ -7,52 +7,45 @@
   <a href="fonts/OFL.txt"><img alt="Fonts" src="https://img.shields.io/badge/Fonts-SIL%20OFL-8E24AA?style=flat-square" /></a>
 </div>
 
-
 ## Palatica
-Vocabulary trainer for Serbian with spaced repetition. Bilingual UI (Cyrillic
-with a German subline), offline-first PWA, no account required.
+
+A small Serbian vocabulary trainer built for spaced repetition, bilingual learning, and a calm offline-first workflow.
+
+Use it directly in your browser: https://dtischler95.github.io/palatica/
+
+No cloning, no setup, no local server needed. Just open the app and start learning.
 
 ## Why this exists
 
-A personal learning tool. I wanted something for Serbian vocab and kept
-running into a handful of specific things Anki and similar tools didn't do
-the way I wanted, so I built the tool instead of working around it.
+This started as a personal tool for Serbian vocabulary and phrases. I kept running into small friction points in other apps, so I built something that felt more natural to use.
 
-It's also where I try out [Claude Code](https://claude.com/claude-code) —
-exploring what it can and can't do, hands-on, rather than reading about it.
-Most of the code here was written with it.
+It also works as a hands-on playground for [Claude Code](https://claude.com/claude-code) — a place to explore what works well, what does not, and how a small app can grow step by step.
 
 ## Features
 
 - Two collections: words and sentences/phrases
-- Spaced repetition scheduling (`SCHEDULE = [1,3,7,14,30,60,120]`)
-- Card mode and fill-in-the-blank mode
-- Fully offline once loaded, installable as a PWA
-- Optional cross-device sync — bring your own Supabase project, nobody
-  shares an account or a quota
-- JSON import/export, per collection or full backup
+- Spaced repetition scheduling with intervals like $1, 3, 7, 14, 30, 60, 120$
+- Card mode for spaced repetition practice
+- Fully usable offline once loaded, and installable as a PWA
+- Optional cross-device sync through your own Supabase project
+- JSON import/export for backups or sharing
 
-## Running locally
+### Run locally
 
-No build step, no Node. Needs a real HTTP origin (not `file://`) for the
-service worker and manifest to work.
+No build step, no Node.js toolchain, and no package install is required. The app needs a real HTTP origin rather than `file://` so the service worker and manifest work correctly.
 
-```
+```bash
 python serve.py            # http://localhost:8080
 python serve.py --port 9000
 ```
 
 ## Tech
 
-Vanilla JS, ES modules, no framework, no bundler. `index.html` loads a
-single entry module (`js/app.js`) that pulls in the rest.
+Vanilla JavaScript, ES modules, no framework, no bundler. The entry page loads a single module from `js/app.js`, which pulls the rest of the app in as needed.
 
 ## Cloud sync
 
-Off by default, everything stays in `localStorage`. If you want sync across
-devices, create your own free Supabase project, run `supabase/schema.sql`
-against it, and enter the project URL and anon key in the cloud panel (top
-right). Your data lives in your own project, not mine.
+Cloud sync is off by default. Your data stays in `localStorage` until you enable it. If you want cross-device syncing, create your own free Supabase project, run `supabase/schema.sql` against it, and enter the project URL and anon key in the cloud panel.
 
 ## License
 
