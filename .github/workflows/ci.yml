@@ -3,13 +3,27 @@ name: CI
 on:
   push:
     branches: [master, main]
-    paths-ignore:
-      - '**/*.md'
-      - '.github/FUNDING.yml'
+    paths:
+      - 'index.html'
+      - 'manifest.json'
+      - 'sw.js'
+      - 'css/**'
+      - 'fonts/**'
+      - 'icons/**'
+      - 'js/**'
+      - '.github/workflows/ci.yml'
+      - '.github/workflows/pages.yml'
   pull_request:
-    paths-ignore:
-      - '**/*.md'
-      - '.github/FUNDING.yml'
+    paths:
+      - 'index.html'
+      - 'manifest.json'
+      - 'sw.js'
+      - 'css/**'
+      - 'fonts/**'
+      - 'icons/**'
+      - 'js/**'
+      - '.github/workflows/ci.yml'
+      - '.github/workflows/pages.yml'
 
 jobs:
   checks:
