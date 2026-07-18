@@ -19,7 +19,7 @@ No cloning, no setup, no local server needed. Just open the app and start learni
 
 This started as a personal tool for Serbian vocabulary and phrases. I kept running into small friction points in other apps, so I built something that felt more natural to use.
 
-It also works as a hands-on playground for [Claude Code](https://claude.com/claude-code) — a place to explore what works well, what does not, and how a small app can grow step by step.
+It also works as a hands-on playground for [Claude Code](https://claude.com/claude-code), a place to explore what works well, what does not, and how a small app can grow step by step.
 
 ## Features
 
