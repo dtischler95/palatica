@@ -41,12 +41,57 @@ export const util = (function(){
 
   function el(id){ return document.getElementById(id); }
 
+  // Cyrillic->Latin transliteration (Gaj). Single letters plus the three digraph
+  // letters (љ њ џ), whose uppercase form follows the next letter's case (Lj vs LJ).
+  var LAT_SINGLE = {
+    'а':'a','б':'b','в':'v','г':'g','д':'d','ђ':'đ','е':'e','ж':'ž','з':'z',
+    'и':'i','ј':'j','к':'k','л':'l','м':'m','н':'n','о':'o','п':'p','р':'r',
+    'с':'s','т':'t','ћ':'ć','у':'u','ф':'f','х':'h','ц':'c','ч':'č','ш':'š',
+    'А':'A','Б':'B','В':'V','Г':'G','Д':'D','Ђ':'Đ','Е':'E','Ж':'Ž','З':'Z',
+    'И':'I','Ј':'J','К':'K','Л':'L','М':'M','Н':'N','О':'O','П':'P','Р':'R',
+    'С':'S','Т':'T','Ћ':'Ć','У':'U','Ф':'F','Х':'H','Ц':'C','Ч':'Č','Ш':'Š'
+  };
+  var LAT_DIGRAPH_LOWER = { 'љ':'lj','њ':'nj','џ':'dž' };
+  var LAT_DIGRAPH_UPPER = { 'Љ':['Lj','LJ'],'Њ':['Nj','NJ'],'Џ':['Dž','DŽ'] };
+
+  function latNextIsUpper(s, i){
+    for(var j = i + 1; j < s.length; j++){
+      var ch = s[j];
+      if(ch.toLowerCase() === ch.toUpperCase()) continue;
+      return ch === ch.toUpperCase();
+    }
+    return false;
+  }
+
+  function toLatin(s){
+    s = String(s == null ? '' : s);
+    var out = '';
+    for(var i = 0; i < s.length; i++){
+      var ch = s[i];
+      if(LAT_DIGRAPH_LOWER[ch] != null){ out += LAT_DIGRAPH_LOWER[ch]; continue; }
+      if(LAT_DIGRAPH_UPPER[ch] != null){ out += LAT_DIGRAPH_UPPER[ch][latNextIsUpper(s, i) ? 1 : 0]; continue; }
+      out += LAT_SINGLE[ch] != null ? LAT_SINGLE[ch] : ch;
+    }
+    return out;
+  }
+
+  function pickSrVoice(){
+    var voices = window.speechSynthesis.getVoices();
+    var byPrefix = function(p){ return voices.find(function(v){ return v.lang.toLowerCase().indexOf(p) === 0; }); };
+    return byPrefix('sr') || byPrefix('hr') || byPrefix('bs') || null;
+  }
+
+  // Non-Serbian fallback voices (hr, bs) read Latin script only; Cyrillic input
+  // comes out silent with no error. Real sr voices handle Cyrillic natively.
   function speak(text){
     try{
       if(!('speechSynthesis' in window)) return;
       window.speechSynthesis.cancel();
-      var u = new SpeechSynthesisUtterance(text);
-      u.lang = 'sr-RS';
+      var v = pickSrVoice();
+      var isRealSr = v && v.lang.toLowerCase().indexOf('sr') === 0;
+      var u = new SpeechSynthesisUtterance(isRealSr ? text : toLatin(text));
+      if(v){ u.voice = v; u.lang = v.lang; }
+      else{ u.lang = 'sr-RS'; }
       window.speechSynthesis.speak(u);
     } catch(e){ console.error('speech failed', e); }
   }
@@ -63,6 +108,6 @@ export const util = (function(){
   return {
     DAY: DAY, uid: uid, today0: today0, daysUntil: daysUntil,
     weekKey: weekKey, weekLabel: weekLabel, parseTags: parseTags,
-    uniq: uniq, escapeHtml: escapeHtml, el: el, speak: speak, download: download
+    uniq: uniq, escapeHtml: escapeHtml, el: el, speak: speak, toLatin: toLatin, download: download
   };
 })();

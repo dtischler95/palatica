@@ -250,7 +250,12 @@ async function switchProvider(mode){
 function registerSW(){
   if(!('serviceWorker' in navigator)) return;
   if(location.protocol !== 'https:' && location.hostname !== 'localhost') return;
-  navigator.serviceWorker.register('sw.js').catch(function(e){
+  navigator.serviceWorker.register('sw.js').then(function(reg){
+    // Chrome/Brave throttle their own byte-compare check for sw.js to once per
+    // 24h regardless of Cache-Control, so a fresh deploy can sit unnoticed for
+    // a day without this. update() forces an immediate check on every load.
+    reg.update();
+  }).catch(function(e){
     console.error('Service Worker konnte nicht registriert werden', e);
   });
 }
