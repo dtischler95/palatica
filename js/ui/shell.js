@@ -9,10 +9,11 @@ import { stats } from './stats.js';
 
 export const ui = (function(){
 
-  var SCREENS = ['home', 'practice', 'quiz', 'list', 'stats', 'settings'];
+  var SCREENS = ['home', 'practice', 'quiz', 'deckedit', 'list', 'stats', 'settings'];
 
-  // Per-collection view state plus the screen-wide practice selection.
-  var state = { byKind: {}, screen: 'home', practice: { kind: null, dir: 'srp-de' } };
+  // Per-collection view state plus the screen-wide practice selection. deckId is
+  // the deck chosen for the daily SRS-deck tile, held here next to kind and dir.
+  var state = { byKind: {}, screen: 'home', practice: { kind: null, dir: 'srp-de', deckId: null } };
 
   function initState(){
     collections.all().forEach(function(c){
@@ -22,18 +23,19 @@ export const ui = (function(){
         page: 1, editId: null, quiz: null
       };
     });
+    // The SRS-deck tile is not a registered collection but reuses the same quiz
+    // state slot, so learn.render can drive it through ui.vs('srsdeck').
+    state.byKind.srsdeck = { quizCat: 'sve', mode: 'card', quiz: null };
     state.practice.kind = collections.all()[0].kind;
     state.practice.dir = config.getDir();
   }
   function vs(kind){ return state.byKind[kind]; }
 
-  // Single source for the direction: persists it and keeps the practice toggle
-  // and the settings control in sync (both button groups live in the DOM).
+  // Single source for the direction: persists it and keeps the practice toggle in sync.
   function setDirection(dir){
     state.practice.dir = dir;
     config.setDir(dir);
     document.querySelectorAll('[data-dir]').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-dir') === dir); });
-    document.querySelectorAll('[data-dir-choice]').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-dir-choice') === dir); });
   }
 
   function showScreen(name){
@@ -51,8 +53,11 @@ export const ui = (function(){
   function fillSelect(el, cats, includeSve){
     if(!el) return;
     var current = el.value;
-    el.innerHTML = (includeSve ? '<option value="sve">Све категорије</option>' : '<option value="">— изабери —</option>') +
-      cats.map(function(c){ return '<option value="' + util.escapeHtml(c) + '">' + util.escapeHtml(c) + '</option>'; }).join('');
+    // Values stay the raw stored category; only the label follows the script.
+    el.innerHTML = (includeSve
+        ? '<option value="sve">' + tpl.line({ sr: 'Све категорије', de: 'Alle Kategorien', en: 'All categories' }) + '</option>'
+        : '<option value="">— ' + tpl.line({ sr: 'изабери', de: 'auswählen', en: 'select' }) + ' —</option>') +
+      cats.map(function(c){ return '<option value="' + util.escapeHtml(c) + '">' + util.escapeHtml(tpl.sr(c)) + '</option>'; }).join('');
     if(cats.indexOf(current) >= 0 || current === 'sve') el.value = current;
   }
 
@@ -85,7 +90,7 @@ export const ui = (function(){
     if(totalPages <= 1){ el.innerHTML = ''; return; }
     el.innerHTML =
       '<button class="vok-btn-ghost" id="' + containerId + '-prev"' + (currentPage <= 1 ? ' disabled' : '') + '>&larr;</button>' +
-      '<span style="font-size:12px;color:var(--vok-ink-soft)">Страна ' + currentPage + ' / ' + totalPages + '</span>' +
+      '<span style="font-size:12px;color:var(--vok-ink-soft)">Страна · Seite ' + currentPage + ' / ' + totalPages + '</span>' +
       '<button class="vok-btn-ghost" id="' + containerId + '-next"' + (currentPage >= totalPages ? ' disabled' : '') + '>&rarr;</button>';
     util.el(containerId + '-prev').addEventListener('click', function(){ onChange(Math.max(1, currentPage - 1)); });
     util.el(containerId + '-next').addEventListener('click', function(){ onChange(Math.min(totalPages, currentPage + 1)); });
@@ -102,9 +107,9 @@ export const ui = (function(){
     var now = Date.now();
     var due = entries.filter(function(e){ return srs.isDue(e, now); }).length;
     var learned = entries.filter(srs.isLearned).length;
-    return '<div class="vok-tag" style="background:var(--vok-due-bg);color:var(--vok-due-fg)">' + due + ' данас доспева</div>' +
-      '<div class="vok-tag" style="background:var(--vok-ok-bg);color:var(--vok-ok-fg)">' + learned + ' научено</div>' +
-      '<div class="vok-tag" style="background:var(--vok-card);color:var(--vok-ink-soft);border:1px solid var(--vok-line)">' + entries.length + ' укупно</div>';
+    return '<div class="vok-tag" style="background:var(--vok-due-bg);color:var(--vok-due-fg)">' + due + ' ' + tpl.lbl({ sr: 'данас доспева', de: 'heute fällig', en: 'due today' }) + '</div>' +
+      '<div class="vok-tag" style="background:var(--vok-ok-bg);color:var(--vok-ok-fg)">' + learned + ' ' + tpl.lbl({ sr: 'научено', de: 'gelernt', en: 'learned' }) + '</div>' +
+      '<div class="vok-tag" style="background:var(--vok-card);color:var(--vok-ink-soft);border:1px solid var(--vok-line)">' + entries.length + ' ' + tpl.lbl({ sr: 'укупно', de: 'insgesamt', en: 'total' }) + '</div>';
   }
 
   // Header shows the total across all collections, each practice tile only its own.

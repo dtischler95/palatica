@@ -16,38 +16,43 @@ export const collections = (function(){
 
 collections.register({
   kind: 'word',
-  name:       { sr: 'Речи', de: 'Wörter' },
+  name:       { sr: 'Речи', de: 'Wörter', en: 'Words' },
   noun:       'речи',
   jsonKey:    'words',
   exportFile: 'palatica-reci.json',
-  addBtn:     { sr: 'Додај реч', de: 'Wort hinzufügen' },
-  ph: {
-    word:   'реч (ћирилица или латиница)',
-    trans:  'deutsche Übersetzung',
-    ex:     'Beispielsatz (optional)',
-    cat:    'категорије, зарезом (нпр. придев, Пепа Прасе)',
-    search: '🔍 претрага (реч, превод, пример)'
+  addBtn:     { sr: 'Додај', de: 'Hinzufügen', en: 'Add' },
+  // Field headings sit above the (empty) inputs, no placeholders in the form.
+  fl: {
+    word:  { sr: 'Реч', de: 'Wort', en: 'Word' },
+    trans: { sr: 'Превод', de: 'Übersetzung', en: 'Translation' },
+    ex:    { sr: 'Пример', de: 'Beispielsatz (optional)', en: 'Example (optional)' },
+    cat:   { sr: 'Категорије', de: 'Kategorien', en: 'Categories' }
   },
-  emptyList: 'Нема речи овде. Додај нову реч изнад.',
-  emptyQuiz: 'Нема речи у овој категорији.',
+  ph: {
+    search: { sr: '🔍 претрага', de: 'Suche (Wort, Übersetzung, Beispiel)', en: 'Search (word, translation, example)' }
+  },
+  emptyList: { sr: 'Нема речи овде. Додај нову реч изнад.', de: 'Noch keine Wörter. Oben ein neues Wort hinzufügen.', en: 'No words yet. Add one above.' },
+  emptyQuiz: { sr: 'Нема речи у овој категорији.', de: 'Keine Wörter in dieser Kategorie.', en: 'No words in this category.' },
   modes: ['card']
 });
 
 collections.register({
   kind: 'construction',
-  name:       { sr: 'Реченице', de: 'Sätze' },
+  name:       { sr: 'Реченице', de: 'Sätze', en: 'Sentences' },
   noun:       'реченица',
   jsonKey:    'constructions',
   exportFile: 'palatica-recenice.json',
-  addBtn:     { sr: 'Додај', de: 'Hinzufügen' },
-  ph: {
-    word:   'нпр. Мислим да...',
-    trans:  'deutsche Übersetzung',
-    ex:     'Beispielsatz (optional)',
-    cat:    'категорије, зарезом',
-    search: '🔍 претрага'
+  addBtn:     { sr: 'Додај', de: 'Hinzufügen', en: 'Add' },
+  fl: {
+    word:  { sr: 'Реченица', de: 'Satz', en: 'Sentence' },
+    trans: { sr: 'Превод', de: 'Übersetzung', en: 'Translation' },
+    ex:    { sr: 'Пример', de: 'Beispielsatz (optional)', en: 'Example (optional)' },
+    cat:   { sr: 'Категорије', de: 'Kategorien', en: 'Categories' }
   },
-  emptyList: 'Нема реченица овде.',
-  emptyQuiz: 'Нема реченица у овој категорији.',
+  ph: {
+    search: { sr: '🔍 претрага', de: 'Suche', en: 'Search' }
+  },
+  emptyList: { sr: 'Нема реченица овде.', de: 'Noch keine Sätze hier.', en: 'No sentences yet.' },
+  emptyQuiz: { sr: 'Нема реченица у овој категорији.', de: 'Keine Sätze in dieser Kategorie.', en: 'No sentences in this category.' },
   modes: ['card']
 });

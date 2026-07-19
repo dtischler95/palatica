@@ -45,11 +45,11 @@ export const install = (function(){
     if(deferred){
       el.innerHTML =
         '<div class="vok-install">' +
-          '<p style="font-size:13px;color:var(--vok-ink-soft);margin:0">Инсталирај Палатицу као апликацију.' +
-            '<span class="vok-sub-de">Als App installieren, dann bleibt der Lernstand sicher erhalten.</span></p>' +
+          '<p style="font-size:13px;color:var(--vok-ink-soft);margin:0">' +
+            lbl({ sr: 'Инсталирај Палатицу као апликацију.', de: 'Als App installieren, dann bleibt der Lernstand sicher erhalten.', en: 'Install as an app, so your progress stays safe.' }) + '</p>' +
           '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
-            '<button class="vok-btn" id="vok-install-go">' + lbl({ sr: 'Инсталирај', de: 'Installieren' }) + '</button>' +
-            '<button class="vok-btn-ghost" id="vok-install-later">' + lbl({ sr: 'Касније', de: 'Später' }) + '</button>' +
+            '<button class="vok-btn" id="vok-install-go">' + lbl({ sr: 'Инсталирај', de: 'Installieren', en: 'Install' }) + '</button>' +
+            '<button class="vok-btn-ghost" id="vok-install-later">' + lbl({ sr: 'Касније', de: 'Später', en: 'Later' }) + '</button>' +
           '</div>' +
         '</div>';
       return;
@@ -59,11 +59,12 @@ export const install = (function(){
     if(isIos()){
       el.innerHTML =
         '<div class="vok-install">' +
-          '<p style="font-size:13px;color:var(--vok-ink-soft);margin:0">Додај на почетни екран: „Подели“ па „На почетни екран“.' +
-            '<span class="vok-sub-de">In Safari das Teilen-Symbol antippen, dann „Zum Home-Bildschirm“. ' +
-            'Ohne Installation löscht iOS die lokalen Daten nach etwa 7 Tagen ohne Nutzung.</span></p>' +
+          '<p style="font-size:13px;color:var(--vok-ink-soft);margin:0">' +
+            lbl({ sr: 'Додај на почетни екран: „Подели“ па „На почетни екран“.',
+                  de: 'In Safari das Teilen-Symbol antippen, dann „Zum Home-Bildschirm“. Ohne Installation löscht iOS die lokalen Daten nach etwa 7 Tagen ohne Nutzung.',
+                  en: 'In Safari tap the Share icon, then „Add to Home Screen“. Without installing, iOS deletes local data after about 7 days without use.' }) + '</p>' +
           '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
-            '<button class="vok-btn-ghost" id="vok-install-later">' + lbl({ sr: 'Разумем', de: 'Verstanden' }) + '</button>' +
+            '<button class="vok-btn-ghost" id="vok-install-later">' + lbl({ sr: 'Разумем', de: 'Verstanden', en: 'Got it' }) + '</button>' +
           '</div>' +
         '</div>';
       return;
@@ -74,10 +75,12 @@ export const install = (function(){
     if(isSupportedOrigin()){
       el.innerHTML =
         '<div class="vok-install">' +
-          '<p style="font-size:13px;color:var(--vok-ink-soft);margin:0">Ова апликација може да се инсталира у ваш браузер.' +
-            '<span class="vok-sub-de">Im Browser auf „Installieren“ oder „Als App installieren“ gehen, wenn die Option verfügbar ist.</span></p>' +
+          '<p style="font-size:13px;color:var(--vok-ink-soft);margin:0">' +
+            lbl({ sr: 'Ова апликација може да се инсталира у ваш браузер.',
+                  de: 'Im Browser auf „Installieren“ oder „Als App installieren“ gehen, wenn die Option verfügbar ist.',
+                  en: 'Use „Install“ or „Install as app“ in your browser when the option is available.' }) + '</p>' +
           '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
-            '<button class="vok-btn-ghost" id="vok-install-later">' + lbl({ sr: 'Разумем', de: 'Verstanden' }) + '</button>' +
+            '<button class="vok-btn-ghost" id="vok-install-later">' + lbl({ sr: 'Разумем', de: 'Verstanden', en: 'Got it' }) + '</button>' +
           '</div>' +
         '</div>';
       return;

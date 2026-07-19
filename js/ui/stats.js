@@ -1,6 +1,7 @@
 // Stats pane: reviews and learned entries per week, last 8 weeks.
 import { util } from '../util.js';
 import { store } from '../store.js';
+import { i18n } from '../i18n.js';
 
 export const stats = (function(){
 
@@ -40,9 +41,9 @@ export const stats = (function(){
     var totalLearned = all.filter(function(e){ return e.learnedAt; }).length;
     var thisWeek = reviewCounts[reviewCounts.length - 1];
     util.el('vok-stat-summary').innerHTML =
-      '<div class="vok-tag" style="background:var(--vok-card);color:var(--vok-ink-soft);border:1px solid var(--vok-line)">' + totalReviews + ' понављања укупно</div>' +
-      '<div class="vok-tag" style="background:var(--vok-ok-bg);color:var(--vok-ok-fg)">' + totalLearned + ' научено укупно</div>' +
-      '<div class="vok-tag" style="background:var(--vok-due-bg);color:var(--vok-due-fg)">' + thisWeek + ' ове недеље</div>';
+      '<div class="vok-tag" style="background:var(--vok-card);color:var(--vok-ink-soft);border:1px solid var(--vok-line)">' + totalReviews + ' ' + i18n.lbl({ sr: 'понављања укупно', de: 'Wiederholungen gesamt', en: 'reviews total' }) + '</div>' +
+      '<div class="vok-tag" style="background:var(--vok-ok-bg);color:var(--vok-ok-fg)">' + totalLearned + ' ' + i18n.lbl({ sr: 'научено укупно', de: 'gelernt gesamt', en: 'learned total' }) + '</div>' +
+      '<div class="vok-tag" style="background:var(--vok-due-bg);color:var(--vok-due-fg)">' + thisWeek + ' ' + i18n.lbl({ sr: 'ове недеље', de: 'diese Woche', en: 'this week' }) + '</div>';
   }
 
   return { render: render };

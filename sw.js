@@ -2,7 +2,7 @@
 //
 // Bump VERSION on every change: the browser only detects sw.js via byte
 // comparison, without a bump users stay stuck on old cached files.
-var VERSION = '1.2.1.0';
+var VERSION = '1.5.1.0';
 var CACHE = 'palatica-' + VERSION;
 
 var ASSETS = [
@@ -12,8 +12,10 @@ var ASSETS = [
   './css/styles.css',
   './js/config.js',
   './js/util.js',
+  './js/i18n.js',
   './js/srs.js',
   './js/collections.js',
+  './js/decks.js',
   './js/storage/local.js',
   './js/storage/supabase.js',
   './js/store.js',
@@ -23,6 +25,7 @@ var ASSETS = [
   './js/ui/templates.js',
   './js/ui/list.js',
   './js/ui/learn.js',
+  './js/ui/deckedit.js',
   './js/ui/stats.js',
   './js/ui/cloud.js',
   './js/ui/install.js',

@@ -68,6 +68,10 @@ body{margin:0;background:var(--vok-bg);min-height:100vh;padding:1.5rem 0}
 .vok-sub{font-size:13px;color:var(--vok-ink-soft);margin:2px 0 0}
 .vok-input{width:100%;background:var(--vok-card);border:1px solid var(--vok-line);border-radius:8px;padding:9px 10px;font-family:'PT Serif',serif;font-size:15px;color:var(--vok-ink)}
 .vok-input:focus{outline:none;border-color:var(--vok-accent)}
+/* Labeled field: small heading above an empty input (replaces long placeholders). */
+.vok-field{display:flex;flex-direction:column;gap:4px}
+.vok-field-lbl{font-family:'Bitter',serif;font-weight:600;font-size:12px;color:var(--vok-ink-soft);padding-left:2px}
+.vok-field-lbl .vok-sub-de{display:inline;margin-left:5px}
 .vok-select{background:var(--vok-card);border:1px solid var(--vok-line);border-radius:8px;padding:8px 10px;font-family:'PT Serif',serif;font-size:13px;color:var(--vok-ink)}
 .vok-btn{font-family:'Bitter',serif;font-weight:600;font-size:13px;background:var(--vok-red);color:#F8F0E4;border:none;border-radius:8px;padding:9px 16px;cursor:pointer}
 .vok-btn:hover{background:var(--vok-red-dark)}
@@ -88,7 +92,8 @@ body{margin:0;background:var(--vok-bg);min-height:100vh;padding:1.5rem 0}
 .vok-card{background:var(--vok-card);border:1px solid var(--vok-line);border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:10px}
 .vok-word{font-family:'Bitter',serif;font-weight:700;font-size:17px;margin:0}
 .vok-trans{font-size:14px;color:var(--vok-ink-soft);margin:2px 0 0}
-.vok-tag{font-size:11px;font-weight:600;border-radius:6px;padding:3px 8px;white-space:nowrap}
+.vok-tag{font-size:11px;font-weight:600;border-radius:6px;padding:3px 8px;white-space:nowrap;text-align:center}
+.vok-tag .vok-sub-de{color:inherit;opacity:.7;margin-top:0}
 .vok-cat-chip{font-size:10px;font-weight:600;border-radius:10px;padding:2px 8px;background:var(--vok-gold);color:#3a2a0a;white-space:nowrap;display:inline-block;margin:4px 4px 0 0}
 .vok-empty{text-align:center;color:var(--vok-ink-soft);font-size:14px;padding:20px 0}
 /* Screen navigation */
@@ -100,6 +105,8 @@ body{margin:0;background:var(--vok-bg);min-height:100vh;padding:1.5rem 0}
 .vok-bar{width:100%;max-width:26px;background:var(--vok-red);border-radius:4px 4px 0 0;min-height:2px}
 .vok-bar-label{font-size:10px;color:var(--vok-ink-soft);margin-top:4px;white-space:nowrap}
 .vok-status{font-size:12px;color:var(--vok-ink-soft);margin-top:8px;min-height:16px}
+/* Short explainer under a settings heading, one line, no status/min-height reservation. */
+.vok-hint{font-size:12px;color:var(--vok-ink-soft);margin:0 0 10px}
 .vok-subh{font-family:'Bitter',serif;font-weight:700;font-size:15px;margin:0 0 8px}
 .vok-subtab{font-family:'Bitter',serif;font-weight:600;font-size:12px;background:var(--vok-card);border:1px solid var(--vok-line);color:var(--vok-ink-soft);border-radius:20px;padding:6px 14px;cursor:pointer}
 .vok-subtab.active{background:var(--vok-red);border-color:var(--vok-red);color:#F8F0E4}
@@ -121,6 +128,11 @@ body{margin:0;background:var(--vok-bg);min-height:100vh;padding:1.5rem 0}
 .vok-opts-group.active{display:flex}
 .vok-mode-opts .vok-select{width:100%}
 .vok-install{background:var(--vok-card);border:1px solid var(--vok-line);border-radius:10px;padding:12px 14px;margin-bottom:16px;display:flex;flex-direction:column;gap:10px}
+/* Deck editor rows: a whole row is the checkbox target, the box only reflects state. */
+.vok-deck-row{cursor:pointer}
+.vok-deck-cb{width:18px;height:18px;flex:0 0 auto;border:1.5px solid var(--vok-ink-soft);border-radius:5px;display:flex;align-items:center;justify-content:center;color:transparent;font-size:12px;font-weight:700}
+.vok-deck-row.is-on{border-color:var(--vok-accent)}
+.vok-deck-row.is-on .vok-deck-cb{background:var(--vok-red);border-color:var(--vok-red);color:#F8F0E4}
 
 /* Mode badge (local / cloud) */
 .vok-badge{font-size:11px;font-weight:600;border-radius:20px;padding:3px 10px;background:var(--vok-card);border:1px solid var(--vok-line);color:var(--vok-ink-soft)}
@@ -186,9 +198,11 @@ body{margin:0;background:var(--vok-bg);min-height:100vh;padding:1.5rem 0}
 
 @media (min-width:700px){
   body{padding:1.5rem}
-  #vok-app{display:flex;align-items:stretch;max-width:960px;margin:0 auto}
-  #vok-nav{position:static;flex-direction:column;width:212px;flex:0 0 auto;gap:3px;border-top:none;border-right:1px solid var(--vok-line);border-radius:16px 0 0 16px;padding:20px 12px}
-  #vok-main{flex:1;min-width:0;max-width:none;margin:0;border-radius:0 16px 16px 0;padding-bottom:1.75rem}
+  /* Fixed-height shell so the nav column stays put; only #vok-main scrolls when
+     a screen (e.g. Einstellungen with many categories) grows taller than the viewport. */
+  #vok-app{display:flex;align-items:stretch;max-width:960px;margin:0 auto;height:calc(100vh - 3rem)}
+  #vok-nav{position:static;flex-direction:column;width:212px;flex:0 0 auto;gap:3px;border-top:none;border-right:1px solid var(--vok-line);border-radius:16px 0 0 16px;padding:20px 12px;overflow-y:auto}
+  #vok-main{flex:1;min-width:0;max-width:none;margin:0;border-radius:0 16px 16px 0;padding-bottom:1.75rem;overflow-y:auto}
   .vok-only-mobile{display:none!important}
   .vok-nav-brand{display:block;font-family:'Bitter',serif;font-weight:700;font-size:20px;color:var(--vok-ink);padding:0 10px 16px}
   .vok-nav-foot{display:block;margin-top:auto;padding-top:14px;border-top:1px solid var(--vok-line)}

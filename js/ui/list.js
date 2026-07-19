@@ -31,31 +31,34 @@ export const list = (function(){
   function cardRow(e, editing){
     var esc = util.escapeHtml;
     if(editing){
+      // Inputs show the raw stored Serbian (Cyrillic), never transliterated, so
+      // saving can never write Latin back into the data.
       return '<div class="vok-edit-row" data-id="' + esc(e.id) + '">' +
-        '<input class="vok-input edit-word" value="' + esc(e.word) + '" placeholder="реч" />' +
-        '<input class="vok-input edit-trans" value="' + esc(e.trans) + '" placeholder="превод" />' +
-        '<input class="vok-input edit-ex" value="' + esc(e.ex || '') + '" placeholder="пример (опционо)" />' +
-        '<input class="vok-input edit-cat" value="' + esc((e.tags||[]).join(', ')) + '" placeholder="категорије, зарезом" />' +
+        '<input class="vok-input edit-word" value="' + esc(e.word) + '" placeholder="' + tpl.line({ sr: 'реч', de: 'Wort', en: 'word' }) + '" />' +
+        '<input class="vok-input edit-trans" value="' + esc(e.trans) + '" placeholder="' + tpl.line({ sr: 'превод', de: 'Übersetzung', en: 'translation' }) + '" />' +
+        '<input class="vok-input edit-ex" value="' + esc(e.ex || '') + '" placeholder="' + tpl.line({ sr: 'пример (опционо)', de: 'Beispiel (optional)', en: 'example (optional)' }) + '" />' +
+        '<input class="vok-input edit-cat" value="' + esc((e.tags||[]).join(', ')) + '" placeholder="' + tpl.line({ sr: 'категорије, зарезом', de: 'Kategorien, mit Komma', en: 'categories, comma-separated' }) + '" />' +
         '<div style="display:flex;gap:8px;margin-top:6px">' +
-          '<button class="vok-btn edit-save">Сачувај</button>' +
-          '<button class="vok-btn-ghost edit-cancel">Откажи</button>' +
+          '<button class="vok-btn edit-save">' + tpl.lbl({ sr: 'Сачувај', de: 'Speichern', en: 'Save' }) + '</button>' +
+          '<button class="vok-btn-ghost edit-cancel">' + tpl.lbl({ sr: 'Откажи', de: 'Abbrechen', en: 'Cancel' }) + '</button>' +
         '</div></div>';
     }
+    var days = util.daysUntil(e.dueAt);
     var tag = srs.isLearned(e)
-      ? '<span class="vok-tag" style="background:var(--vok-ok-bg);color:var(--vok-ok-fg)">научено</span>'
+      ? '<span class="vok-tag" style="background:var(--vok-ok-bg);color:var(--vok-ok-fg)">' + tpl.lbl({ sr: 'научено', de: 'gelernt', en: 'learned' }) + '</span>'
       : srs.isDue(e)
-        ? '<span class="vok-tag" style="background:var(--vok-due-bg);color:var(--vok-due-fg)">доспева</span>'
-        : '<span class="vok-tag" style="background:var(--vok-card);color:var(--vok-ink-soft);border:1px solid var(--vok-line)">за ' + util.daysUntil(e.dueAt) + ' д.</span>';
-    var chips = (e.tags||[]).map(function(t){ return '<span class="vok-cat-chip">' + esc(t) + '</span>'; }).join('');
+        ? '<span class="vok-tag" style="background:var(--vok-due-bg);color:var(--vok-due-fg)">' + tpl.lbl({ sr: 'доспева', de: 'fällig', en: 'due' }) + '</span>'
+        : '<span class="vok-tag" style="background:var(--vok-card);color:var(--vok-ink-soft);border:1px solid var(--vok-line)">' + esc(tpl.sr('за ' + days + ' д.')) + '<span class="vok-sub-de">' + tpl.t({ de: 'in ' + days + ' T.', en: 'in ' + days + ' d.' }) + '</span></span>';
+    var chips = (e.tags||[]).map(function(t){ return '<span class="vok-cat-chip">' + esc(tpl.sr(t)) + '</span>'; }).join('');
     return '<div class="vok-card" data-id="' + esc(e.id) + '">' +
-      '<div><p class="vok-word">' + esc(e.word) +
-        ' <button class="vok-icon-btn row-speak" style="padding:2px 7px" title="изговор / vorlesen">&#128266;</button></p>' +
-      '<p class="vok-trans">' + esc(e.trans) + (e.ex ? ' — ' + esc(e.ex) : '') + '</p><div>' + chips + '</div></div>' +
+      '<div><p class="vok-word">' + esc(tpl.sr(e.word)) +
+        ' <button class="vok-icon-btn row-speak" style="padding:2px 7px" title="' + tpl.sr('изговор') + ' / ' + tpl.t({ de: 'vorlesen', en: 'read aloud' }) + '">&#128266;</button></p>' +
+      '<p class="vok-trans">' + esc(e.trans) + (e.ex ? ' — ' + esc(tpl.sr(e.ex)) : '') + '</p><div>' + chips + '</div></div>' +
       '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">' + tag +
       '<div style="display:flex;gap:4px">' +
-        '<button class="vok-icon-btn row-reset" title="ресетуј напредак / Fortschritt zurücksetzen">&#8635;</button>' +
-        '<button class="vok-icon-btn row-edit" title="уреди / bearbeiten">&#9998;</button>' +
-        '<button class="vok-icon-btn danger row-del" title="обриши / löschen">&#10005;</button>' +
+        '<button class="vok-icon-btn row-reset" title="' + tpl.sr('ресетуј напредак') + ' / ' + tpl.t({ de: 'Fortschritt zurücksetzen', en: 'reset progress' }) + '">&#8635;</button>' +
+        '<button class="vok-icon-btn row-edit" title="' + tpl.sr('уреди') + ' / ' + tpl.t({ de: 'bearbeiten', en: 'edit' }) + '">&#9998;</button>' +
+        '<button class="vok-icon-btn danger row-del" title="' + tpl.sr('обриши') + ' / ' + tpl.t({ de: 'löschen', en: 'delete' }) + '">&#10005;</button>' +
       '</div></div></div>';
   }
 
@@ -70,14 +73,14 @@ export const list = (function(){
 
     var items = filtered(kind);
     var total = store.entries(kind).length;
-    util.el(id.count).textContent = items.length + ' од ' + total + ' ' + c.noun + ' укупно (у овом приказу)';
+    util.el(id.count).textContent = items.length + ' / ' + total + ' ' + tpl.sr(c.noun) + ' · ' + tpl.t({ de: 'in dieser Ansicht', en: 'in this view' });
 
     var totalPages = Math.max(1, Math.ceil(items.length / PAGE_SIZE));
     if(st.page > totalPages) st.page = totalPages;
     var pageItems = items.slice((st.page - 1) * PAGE_SIZE, st.page * PAGE_SIZE);
 
     util.el(id.list).innerHTML = items.length === 0
-      ? '<p class="vok-empty">' + util.escapeHtml(c.emptyList) + '</p>'
+      ? '<p class="vok-empty">' + tpl.lbl(c.emptyList) + '</p>'
       : pageItems.map(function(e){ return cardRow(e, st.editId === e.id); }).join('');
 
     ui.renderPageControls(id.page, items.length, st.page, function(p){ st.page = p; render(kind); });
@@ -148,16 +151,17 @@ export const list = (function(){
     util.el(id.catfilter).addEventListener('change', function(){ st.cat = this.value; st.page = 1; render(kind); });
     util.el(id.search).addEventListener('input', function(){ st.search = this.value; st.page = 1; render(kind); });
 
+    var confirmLbl = tpl.lbl({ sr: 'Потврди?', de: 'bestätigen', en: 'confirm' });
     util.el(id.delDup).addEventListener('click', function(){
-      ui.armButton(this, 'Потврди?<span class="vok-sub-de">bestätigen</span>', function(){ store.deleteDuplicates(kind); });
+      ui.armButton(this, confirmLbl, function(){ store.deleteDuplicates(kind); });
     });
     util.el(id.delToday).addEventListener('click', function(){
-      ui.armButton(this, 'Потврди?<span class="vok-sub-de">bestätigen</span>', function(){ store.deleteAddedToday(kind); });
+      ui.armButton(this, confirmLbl, function(){ store.deleteAddedToday(kind); });
     });
     util.el(id.delCat).addEventListener('click', function(){
       var cat = util.el(id.delCatSel).value;
       if(!cat) return;
-      ui.armButton(this, 'Потврди?<span class="vok-sub-de">bestätigen</span>', function(){ store.deleteByCategory(kind, cat); });
+      ui.armButton(this, confirmLbl, function(){ store.deleteByCategory(kind, cat); });
     });
     util.el(id.renCat).addEventListener('click', function(){
       var from = util.el(id.renFrom).value, to = util.el(id.renTo).value.trim();
@@ -168,7 +172,7 @@ export const list = (function(){
 
     util.el(id.exportBtn).addEventListener('click', function(){
       util.download(JSON.stringify(store.exportCollection(kind), null, 2), c.exportFile);
-      ui.ioStatus(id.ioStatus, 'Извезено.');
+      ui.ioStatus(id.ioStatus, tpl.line({ sr: 'Извезено', de: 'Exportiert.', en: 'Exported.' }));
     });
     util.el(id.importBtn).addEventListener('click', function(){ util.el(id.importFile).click(); });
     util.el(id.importFile).addEventListener('change', function(ev){
@@ -179,9 +183,9 @@ export const list = (function(){
         try{
           var data = JSON.parse(evt.target.result);
           var incoming = Array.isArray(data) ? data : (data[c.jsonKey] || []);
-          ui.ioStatus(id.ioStatus, 'Увезено: ' + store.importEntries(kind, incoming) + '.');
+          ui.ioStatus(id.ioStatus, tpl.line({ sr: 'Увезено', de: 'Importiert', en: 'Imported' }) + ': ' + store.importEntries(kind, incoming) + '.');
         } catch(err){
-          ui.ioStatus(id.ioStatus, 'Грешка при увозу — проверите датотеку.');
+          ui.ioStatus(id.ioStatus, tpl.line({ sr: 'Грешка при увозу', de: 'Fehler beim Import — Datei prüfen.', en: 'Import error — check the file.' }));
         }
         ev.target.value = '';
       };
@@ -194,7 +198,7 @@ export const list = (function(){
   function wireBackup(){
     util.el('vok-export-all').addEventListener('click', function(){
       util.download(JSON.stringify(store.exportBackup(), null, 2), 'palatica-backup.json');
-      ui.ioStatus('vok-io-status-all', 'Комплетан бекап извезен.');
+      ui.ioStatus('vok-io-status-all', tpl.line({ sr: 'Комплетан бекап извезен', de: 'Voll-Backup exportiert.', en: 'Full backup exported.' }));
     });
     util.el('vok-import-all-btn').addEventListener('click', function(){ util.el('vok-import-all-file').click(); });
     util.el('vok-import-all-file').addEventListener('change', function(ev){
@@ -207,13 +211,15 @@ export const list = (function(){
           var data = JSON.parse(evt.target.result);
           var known = collections.all().some(function(c){ return data[c.jsonKey]; });
           if(!known && !data.history) throw new Error('kein Backup-Format');
-          ui.armButton(btn, 'Потврди? Брише све!<span class="vok-sub-de">ersetzt alles</span>', function(){
+          ui.armButton(btn, tpl.lbl({ sr: 'Потврди? Брише све!', de: 'ersetzt alles', en: 'replaces everything' }), function(){
             var r = store.importBackup(data);
-            ui.ioStatus('vok-io-status-all', 'Увезено: ' + r.entries + ' уноса, ' + r.history + ' понављања.');
+            ui.ioStatus('vok-io-status-all', tpl.line({ sr: 'Увезено', de: 'Importiert', en: 'Imported' }) + ': ' +
+              r.entries + ' ' + tpl.sr('уноса') + ' / ' + tpl.t({ de: 'Einträge', en: 'entries' }) + ', ' +
+              r.history + ' ' + tpl.sr('понављања') + ' / ' + tpl.t({ de: 'Wdh.', en: 'reviews' }));
           });
-          ui.ioStatus('vok-io-status-all', 'Кликни поново да потврдиш — nochmal klicken zum Bestätigen.');
+          ui.ioStatus('vok-io-status-all', tpl.sr('Кликни поново да потврдиш') + ' — ' + tpl.t({ de: 'nochmal klicken zum Bestätigen.', en: 'click again to confirm.' }));
         } catch(err){
-          ui.ioStatus('vok-io-status-all', 'Грешка при увозу — проверите датотеку.');
+          ui.ioStatus('vok-io-status-all', tpl.line({ sr: 'Грешка при увозу', de: 'Fehler beim Import — Datei prüfen.', en: 'Import error — check the file.' }));
         }
         ev.target.value = '';
       };
