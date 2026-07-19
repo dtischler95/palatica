@@ -90,7 +90,7 @@ export const ui = (function(){
     if(totalPages <= 1){ el.innerHTML = ''; return; }
     el.innerHTML =
       '<button class="vok-btn-ghost" id="' + containerId + '-prev"' + (currentPage <= 1 ? ' disabled' : '') + '>&larr;</button>' +
-      '<span style="font-size:12px;color:var(--vok-ink-soft)">Страна · Seite ' + currentPage + ' / ' + totalPages + '</span>' +
+      '<span style="font-size:12px;color:var(--vok-ink-soft)">' + tpl.line({ sr: 'Страна', de: 'Seite', en: 'Page' }) + ' ' + currentPage + ' / ' + totalPages + '</span>' +
       '<button class="vok-btn-ghost" id="' + containerId + '-next"' + (currentPage >= totalPages ? ' disabled' : '') + '>&rarr;</button>';
     util.el(containerId + '-prev').addEventListener('click', function(){ onChange(Math.max(1, currentPage - 1)); });
     util.el(containerId + '-next').addEventListener('click', function(){ onChange(Math.min(totalPages, currentPage + 1)); });

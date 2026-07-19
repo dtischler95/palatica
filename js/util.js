@@ -13,7 +13,7 @@ export const util = (function(){
   function weekKey(ts){
     var d = new Date(ts);
     d.setHours(0,0,0,0);
-    d.setDate(d.getDate() - d.getDay());
+    d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
     return d.getTime();
   }
   function weekLabel(ts){

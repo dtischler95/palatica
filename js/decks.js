@@ -55,10 +55,22 @@ export const decks = (function(){
     list = (Array.isArray(arr) ? arr : []).map(normalize);
     persist();
   }
+  function removeCards(ids){
+    var idSet = {};
+    ids.forEach(function(id){ idSet[id] = true; });
+    var changed = false;
+    list.forEach(function(d){
+      var before = d.cardIds.length;
+      d.cardIds = d.cardIds.filter(function(id){ return !idSet[id]; });
+      if(d.cardIds.length !== before) changed = true;
+    });
+    if(changed) persist();
+  }
 
   load();
   return {
     all: all, get: get, save: save, remove: remove, replaceAll: replaceAll,
+    removeCards: removeCards,
     DEFAULT_NEW_PER_DAY: DEFAULT_NEW_PER_DAY
   };
 })();

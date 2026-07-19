@@ -118,6 +118,7 @@ export const store = (function(){
     var idSet = {};
     ids.forEach(function(i){ idSet[i] = true; });
     state.entries = state.entries.filter(function(e){ return !idSet[e.id]; });
+    decks.removeCards(ids);
     persist(provider.deleteEntries(ids, snapshot()));
     notify();
   }

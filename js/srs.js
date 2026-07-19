@@ -35,10 +35,11 @@ export const srs = (function(){
       interval = 1;
     }
 
+    var d0 = new Date(now); d0.setHours(0,0,0,0);
     var patch = {
       reps: reps,
       interval: interval,
-      dueAt: now + interval * DAY
+      dueAt: d0.getTime() + interval * DAY
     };
     if(interval >= LEARNED_INTERVAL && !entry.learnedAt){
       patch.learnedAt = now;

@@ -2,7 +2,7 @@
 //
 // Bump VERSION on every change: the browser only detects sw.js via byte
 // comparison, without a bump users stay stuck on old cached files.
-var VERSION = '1.5.1.3';
+var VERSION = '1.5.1.4';
 var CACHE = 'palatica-' + VERSION;
 
 var ASSETS = [
