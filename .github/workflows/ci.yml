@@ -28,7 +28,36 @@ on:
       - '.github/workflows/skip-non-app.yml'
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      run: ${{ steps.filter.outputs.run }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: filter
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE="origin/${{ github.base_ref }}"
+            CHANGED="$(git diff --name-only "$BASE"...HEAD)"
+          else
+            CHANGED="$(git diff-tree --no-commit-id --name-only -r "${{ github.sha }}")"
+          fi
+
+          echo "$CHANGED"
+
+          if echo "$CHANGED" | grep -Eq '^(index\.html|manifest\.json|sw\.js|css/|fonts/|icons/|js/|\.github/workflows/(ci|pages|skip-non-app)\.yml)$'; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
+
   checks:
+    needs: changes
+    if: needs.changes.outputs.run == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

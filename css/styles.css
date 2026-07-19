@@ -29,6 +29,30 @@
   --vok-due-fg:#633806;
   --vok-ok-bg:#E1F5EE;
   --vok-ok-fg:#085041;
+  --vok-accent:#A61C3C;
+  color-scheme:light;
+}
+/* Dark theme: warm dark parchment, not cold gray. An inline script in index.html
+   sets data-theme on <html> pre-paint. --vok-red is surfaces only now, --vok-accent
+   carries the red text/borders that need contrast on the dark ground. */
+:root[data-theme="dark"]{
+  --vok-bg:#211d18;
+  --vok-card:#2b2620;
+  --vok-ink:#ece5d6;
+  --vok-ink-soft:#b3a993;
+  --vok-red:#b02840;
+  --vok-red-dark:#8f2034;
+  --vok-accent:#e0708a;
+  --vok-gold:#cf9f52;
+  --vok-line:#3d362c;
+  --vok-due-bg:#3a2e1c;
+  --vok-due-fg:#e6b877;
+  --vok-ok-bg:#1e3a30;
+  --vok-ok-fg:#8fd9c1;
+  --vok-again-bg:#3a2224;--vok-again-fg:#efa0ab;
+  --vok-hard-bg:#3a3018;--vok-hard-fg:#e6c078;
+  --vok-good-bg:#1e3a30;--vok-good-fg:#8fd9c1;
+  color-scheme:dark;
 }
 /* Bitter ersetzt bei lang="sr" ueber die OpenType-Funktion "locl" т und д durch die
    serbischen Kursivformen (т wird zu ш mit Strich, д wird zu g). Diese Formen gehoeren
@@ -43,29 +67,32 @@ body{margin:0;background:var(--vok-bg);min-height:100vh;padding:1.5rem 0}
 .vok-h{font-family:'Bitter',serif;font-weight:700;font-size:22px;color:var(--vok-ink);margin:0}
 .vok-sub{font-size:13px;color:var(--vok-ink-soft);margin:2px 0 0}
 .vok-input{width:100%;background:var(--vok-card);border:1px solid var(--vok-line);border-radius:8px;padding:9px 10px;font-family:'PT Serif',serif;font-size:15px;color:var(--vok-ink)}
-.vok-input:focus{outline:none;border-color:var(--vok-red)}
+.vok-input:focus{outline:none;border-color:var(--vok-accent)}
 .vok-select{background:var(--vok-card);border:1px solid var(--vok-line);border-radius:8px;padding:8px 10px;font-family:'PT Serif',serif;font-size:13px;color:var(--vok-ink)}
 .vok-btn{font-family:'Bitter',serif;font-weight:600;font-size:13px;background:var(--vok-red);color:#F8F0E4;border:none;border-radius:8px;padding:9px 16px;cursor:pointer}
 .vok-btn:hover{background:var(--vok-red-dark)}
 .vok-btn:disabled{opacity:.5;cursor:default}
 .vok-btn-ghost{font-family:'Bitter',serif;font-weight:600;font-size:12px;background:transparent;color:var(--vok-ink-soft);border:1px solid var(--vok-line);border-radius:8px;padding:7px 12px;cursor:pointer}
-.vok-btn-ghost.active,.vok-btn-ghost:hover{border-color:var(--vok-red);color:var(--vok-red)}
+.vok-btn-ghost:hover{border-color:var(--vok-accent);color:var(--vok-accent)}
+/* Segmented control: one-of-many selector (direction, theme, list filter).
+   Kept separate from .vok-btn-ghost so ghost means only "secondary action". */
+.vok-seg{display:inline-flex;gap:3px;background:var(--vok-card);border:1px solid var(--vok-line);border-radius:9px;padding:3px;vertical-align:middle}
+.vok-seg.wide{display:flex}
+.vok-seg>button{flex:0 0 auto;font-family:'Bitter',serif;font-weight:600;font-size:12px;line-height:1.15;border:none;background:none;color:var(--vok-ink-soft);border-radius:6px;padding:7px 12px;cursor:pointer;white-space:nowrap;transition:background .15s ease,color .15s ease}
+.vok-seg.wide>button{flex:1;min-width:0}
+.vok-seg>button.active{background:var(--vok-red);color:#F8F0E4}
+.vok-seg>button:focus-visible{outline:2px solid var(--vok-accent);outline-offset:-2px}
 .vok-icon-btn{font-family:'PT Serif',serif;font-size:12px;background:transparent;border:1px solid var(--vok-line);color:var(--vok-ink-soft);border-radius:6px;padding:4px 9px;cursor:pointer}
-.vok-icon-btn:hover{border-color:var(--vok-red);color:var(--vok-red)}
-.vok-icon-btn.danger:hover{border-color:#a61c3c;color:#a61c3c}
+.vok-icon-btn:hover{border-color:var(--vok-accent);color:var(--vok-accent)}
+.vok-icon-btn.danger:hover{border-color:var(--vok-accent);color:var(--vok-accent)}
 .vok-card{background:var(--vok-card);border:1px solid var(--vok-line);border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:10px}
 .vok-word{font-family:'Bitter',serif;font-weight:700;font-size:17px;margin:0}
 .vok-trans{font-size:14px;color:var(--vok-ink-soft);margin:2px 0 0}
 .vok-tag{font-size:11px;font-weight:600;border-radius:6px;padding:3px 8px;white-space:nowrap}
 .vok-cat-chip{font-size:10px;font-weight:600;border-radius:10px;padding:2px 8px;background:var(--vok-gold);color:#3a2a0a;white-space:nowrap;display:inline-block;margin:4px 4px 0 0}
 .vok-empty{text-align:center;color:var(--vok-ink-soft);font-size:14px;padding:20px 0}
-/* Main menu and screen navigation */
-.vok-menu{display:flex;flex-direction:column;gap:10px}
-.vok-menu-tile{background:var(--vok-card);border:1px solid var(--vok-line);border-radius:10px;padding:14px 16px;cursor:pointer;text-align:left;width:100%}
-.vok-menu-tile:hover{border-color:var(--vok-red)}
-.vok-menu-title{display:block;font-family:'Bitter',serif;font-weight:700;font-size:16px;color:var(--vok-ink)}
+/* Screen navigation */
 .vok-screen-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
-.vok-dir-toggle{display:flex;gap:8px}
 .vok-pane{display:none}
 .vok-pane.active{display:block}
 .vok-bars{display:flex;align-items:flex-end;gap:6px;height:110px;margin:10px 0 4px;padding:0 2px}
@@ -79,22 +106,23 @@ body{margin:0;background:var(--vok-bg);min-height:100vh;padding:1.5rem 0}
 .vok-subpane{display:none}
 .vok-subpane.active{display:block}
 .vok-sub-de{display:block;font-size:9px;font-weight:400;font-family:'PT Serif',serif;opacity:.65;margin-top:2px;letter-spacing:0}
-.vok-edit-row{background:var(--vok-card);border:1px solid var(--vok-red);border-radius:10px;padding:12px 14px;margin-bottom:8px}
+.vok-edit-row{background:var(--vok-card);border:1px solid var(--vok-accent);border-radius:10px;padding:12px 14px;margin-bottom:8px}
 .vok-edit-row input{margin-bottom:6px}
 /* Practice tiles: scrolls horizontally only once tiles overflow */
 .vok-mode-row{display:flex;gap:10px;overflow-x:auto;margin-bottom:14px;padding-bottom:4px;scrollbar-width:none}
 .vok-mode-row::-webkit-scrollbar{display:none}
-.vok-mode-tile{flex:0 0 auto;width:220px;background:var(--vok-card);border:1px solid var(--vok-line);border-radius:10px;padding:12px 14px;cursor:pointer}
-.vok-mode-tile.selected{border-color:var(--vok-red)}
+/* Grow to fill the row when few, scroll (no shrink below basis) when many. */
+.vok-mode-tile{flex:1 0 150px;background:var(--vok-card);border:1px solid var(--vok-line);border-radius:10px;padding:12px 14px;cursor:pointer}
+.vok-mode-tile.selected{border-color:var(--vok-accent)}
 .vok-mode-tile-title{font-family:'Bitter',serif;font-weight:700;font-size:15px;margin:0;color:var(--vok-ink)}
 .vok-tile-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
-.vok-tile-opts{display:none;margin-top:10px}
-.vok-mode-tile.selected .vok-tile-opts{display:block}
-.vok-tile-opts .vok-select{width:100%}
+.vok-mode-opts{background:var(--vok-card);border:1px solid var(--vok-line);border-radius:10px;padding:12px 14px;margin-bottom:14px}
+.vok-opts-group{display:none;flex-direction:column;gap:10px}
+.vok-opts-group.active{display:flex}
+.vok-mode-opts .vok-select{width:100%}
 .vok-install{background:var(--vok-card);border:1px solid var(--vok-line);border-radius:10px;padding:12px 14px;margin-bottom:16px;display:flex;flex-direction:column;gap:10px}
 
-/* Kopfzeile mit Konto-Status */
-.vok-account{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+/* Mode badge (local / cloud) */
 .vok-badge{font-size:11px;font-weight:600;border-radius:20px;padding:3px 10px;background:var(--vok-card);border:1px solid var(--vok-line);color:var(--vok-ink-soft)}
 .vok-badge.cloud{background:var(--vok-ok-bg);color:var(--vok-ok-fg);border-color:transparent}
 
@@ -105,3 +133,75 @@ body{margin:0;background:var(--vok-bg);min-height:100vh;padding:1.5rem 0}
 .vok-login-hint{font-size:12px;color:var(--vok-ink-soft);text-align:center;margin:6px 0 0}
 .vok-divider{display:flex;align-items:center;gap:10px;color:var(--vok-ink-soft);font-size:12px;margin:14px 0}
 .vok-divider::before,.vok-divider::after{content:'';flex:1;height:1px;background:var(--vok-line)}
+
+/* --- Button system & polish (redesign step 1) --- */
+/* Semantic self-assessment colors: fail/hard/good read at a glance. */
+:root{
+  --vok-again-bg:#F7E3E3;--vok-again-fg:#8A1D2C;
+  --vok-hard-bg:#FBEFD8;--vok-hard-fg:#7A5310;
+  --vok-good-bg:#E1F5EE;--vok-good-fg:#0B5D4A;
+}
+/* Equal-width grade buttons, colored by meaning. Overrides the .vok-btn /
+   .vok-btn-ghost base they also carry; placed last so it wins on equal specificity. */
+.vok-fail-btn,.vok-hard-btn,.vok-good-btn{flex:1;min-width:0;border:none;font-weight:600;font-size:13px;padding:11px 8px;border-radius:8px;line-height:1.25}
+.vok-fail-btn,.vok-fail-btn:hover{background:var(--vok-again-bg);color:var(--vok-again-fg)}
+.vok-hard-btn,.vok-hard-btn:hover{background:var(--vok-hard-bg);color:var(--vok-hard-fg)}
+.vok-good-btn,.vok-good-btn:hover{background:var(--vok-good-bg);color:var(--vok-good-fg)}
+.vok-fail-btn:hover,.vok-hard-btn:hover,.vok-good-btn:hover{filter:brightness(.95)}
+
+.vok-btn:active{background:var(--vok-red-dark)}
+
+/* Transitions and a soft lift on the pickable tiles. */
+.vok-btn,.vok-btn-ghost,.vok-icon-btn,.vok-subtab,.vok-nav-item,.vok-mode-tile{transition:background .15s ease,border-color .15s ease,color .15s ease,box-shadow .15s ease}
+.vok-mode-tile:hover{box-shadow:0 4px 14px -8px rgba(43,38,32,.35)}
+
+/* Visible keyboard focus, previously only inputs had one. */
+.vok-btn:focus-visible,.vok-btn-ghost:focus-visible,.vok-icon-btn:focus-visible,.vok-subtab:focus-visible,.vok-mode-tile:focus-visible,.vok-select:focus-visible{outline:2px solid var(--vok-accent);outline-offset:2px}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* Collapsible management/backup sections (native <details>). */
+.vok-fold{border:1px solid var(--vok-line);border-radius:10px;background:var(--vok-card);margin-top:16px;padding:0 14px}
+.vok-fold[open]{padding-bottom:14px}
+.vok-fold>summary{list-style:none;cursor:pointer;padding:12px 0;font-family:'Bitter',serif;font-weight:700;font-size:13px;color:var(--vok-ink-soft);display:flex;justify-content:space-between;align-items:center;gap:8px}
+.vok-fold>summary::-webkit-details-marker{display:none}
+.vok-fold>summary::after{content:'\25BE';color:var(--vok-ink-soft);transition:transform .15s ease}
+.vok-fold[open]>summary::after{transform:rotate(180deg)}
+.vok-fold>summary:hover{color:var(--vok-accent)}
+.vok-fold>summary:focus-visible{outline:2px solid var(--vok-accent);outline-offset:2px}
+
+/* --- Responsive shell: bottom tab bar on phones, sidebar on web (step 3) --- */
+/* Mobile first: nav is a fixed bottom bar, content leaves room for it. */
+#vok-main{padding-bottom:calc(72px + env(safe-area-inset-bottom))}
+#vok-nav{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;background:var(--vok-card);border-top:1px solid var(--vok-line);padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
+.vok-nav-brand,.vok-nav-foot{display:none}
+.vok-nav-item{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:none;cursor:pointer;padding:5px 2px;border-radius:8px;font-family:'Bitter',serif;font-weight:600;font-size:10px;color:var(--vok-ink-soft)}
+.vok-nav-ic{font-size:18px;line-height:1}
+.vok-nav-lbl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.vok-nav-lbl .vok-sub-de{display:none}
+.vok-nav-item.nav-on{color:var(--vok-accent)}
+.vok-nav-item.vok-nav-web{display:none}
+.vok-nav-item:focus-visible{outline:2px solid var(--vok-accent);outline-offset:-2px}
+.vok-topbar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+
+@media (min-width:700px){
+  body{padding:1.5rem}
+  #vok-app{display:flex;align-items:stretch;max-width:960px;margin:0 auto}
+  #vok-nav{position:static;flex-direction:column;width:212px;flex:0 0 auto;gap:3px;border-top:none;border-right:1px solid var(--vok-line);border-radius:16px 0 0 16px;padding:20px 12px}
+  #vok-main{flex:1;min-width:0;max-width:none;margin:0;border-radius:0 16px 16px 0;padding-bottom:1.75rem}
+  .vok-only-mobile{display:none!important}
+  .vok-nav-brand{display:block;font-family:'Bitter',serif;font-weight:700;font-size:20px;color:var(--vok-ink);padding:0 10px 16px}
+  .vok-nav-foot{display:block;margin-top:auto;padding-top:14px;border-top:1px solid var(--vok-line)}
+  .vok-nav-item{flex:none;flex-direction:row;justify-content:flex-start;gap:11px;font-size:14px;font-weight:700;padding:10px 12px;text-align:left}
+  .vok-nav-ic{font-size:15px;width:18px;text-align:center}
+  .vok-nav-lbl .vok-sub-de{display:block}
+  .vok-nav-item.nav-on{background:var(--vok-red);color:#F8F0E4}
+  .vok-nav-item.vok-nav-web{display:flex}
+}
+
+/* Home dashboard */
+.vok-hero{background:var(--vok-card);border:1px solid var(--vok-line);border-radius:16px;padding:22px;text-align:center;margin-bottom:14px}
+.vok-hero-num{font-family:'Bitter',serif;font-weight:700;font-size:46px;line-height:1;color:var(--vok-accent);font-variant-numeric:tabular-nums}
+.vok-hero-lbl{font-size:14px;color:var(--vok-ink-soft);margin-top:6px}
+.vok-hero-mini{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.vok-rule path{stroke:var(--vok-accent)}

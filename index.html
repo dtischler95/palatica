@@ -9,71 +9,46 @@
 <meta name="theme-color" content="#A61C3C" />
 <link rel="icon" href="icons/icon-192.png" />
 <link rel="apple-touch-icon" href="icons/icon-192.png" />
+<!-- Set the theme before first paint so there is no flash. Reads the same
+     localStorage key as config.js; 'auto' follows the OS. -->
+<script>
+(function(){
+  try{
+    var t = localStorage.getItem('palatica-theme') || 'auto';
+    var dark = t === 'dark' || (t === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+    var m = document.querySelector('meta[name="theme-color"]');
+    if(m) m.setAttribute('content', dark ? '#211d18' : '#A61C3C');
+  }catch(e){}
+})();
+</script>
 </head>
 <body>
 
-<!-- Kein Login-Gate: Die App startet direkt lokal. Die Cloud ist ein optionaler
-     Knopf oben rechts und fuer den normalen Betrieb ohne Bedeutung. -->
-<div id="vok-app" class="vok-wrap">
-  <div class="vok-account">
-    <span class="vok-badge" id="vok-mode-badge"></span>
-    <button class="vok-icon-btn" id="vok-cloud-btn">&#9729; Синхронизација<span class="vok-sub-de">Cloud-Sync (optional)</span></button>
-  </div>
+<!-- Kein Login-Gate: Die App startet direkt lokal. Persistente Navigation:
+     Tab-Leiste unten am Handy, Seitenleiste im Web (ein Breakpoint in styles.css).
+     Titel, Motto und Kennzahlen leben jetzt im Startseiten-Pane (templates.js). -->
+<div id="vok-app">
+  <nav id="vok-nav">
+    <span class="vok-nav-brand">Палатица</span>
+    <button class="vok-nav-item nav-on" data-screen="home"><span class="vok-nav-ic">&#8962;</span><span class="vok-nav-lbl">Почетна<span class="vok-sub-de">Startseite</span></span></button>
+    <button class="vok-nav-item" data-screen="practice"><span class="vok-nav-ic">&#9998;</span><span class="vok-nav-lbl">Вежбај<span class="vok-sub-de">Üben</span></span></button>
+    <button class="vok-nav-item" data-screen="list"><span class="vok-nav-ic">&#9776;</span><span class="vok-nav-lbl">Листа<span class="vok-sub-de">Wortliste</span></span></button>
+    <button class="vok-nav-item" data-screen="stats"><span class="vok-nav-ic">&#9636;</span><span class="vok-nav-lbl">Статистика<span class="vok-sub-de">Statistik</span></span></button>
+    <button class="vok-nav-item vok-nav-web" data-screen="settings"><span class="vok-nav-ic">&#9881;</span><span class="vok-nav-lbl">Подешавања<span class="vok-sub-de">Einstellungen</span></span></button>
+    <div class="vok-nav-foot"><span class="vok-badge vok-mode-badge"></span></div>
+  </nav>
 
-  <div id="vok-cloud-panel" class="vok-card" style="display:none;flex-direction:column;align-items:stretch;gap:8px">
-    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
-      <p class="vok-subh" style="margin:0">Синхронизација између уређаја<span class="vok-sub-de" style="display:block">Geräte-Sync über deine eigene Supabase. Rein optional.</span></p>
-      <button class="vok-icon-btn" id="vok-cloud-close">&#10005;</button>
+  <main id="vok-main" class="vok-wrap">
+    <div class="vok-topbar vok-only-mobile">
+      <span class="vok-badge vok-mode-badge"></span>
+      <button class="vok-icon-btn" data-screen="settings">&#9881; Подешавања<span class="vok-sub-de">Einstellungen</span></button>
     </div>
 
-    <!-- 1. Noch kein Zugang auf diesem Geraet -->
-    <div id="vok-cloud-setup" style="display:none">
-      <p class="vok-status" style="margin:0 0 6px">
-        Die App braucht das nicht. Wer seinen Lernstand über mehrere Geräte teilen will,
-        legt ein eigenes kostenloses Supabase-Projekt an und trägt hier dessen Zugang ein.
-        Die Daten liegen dann in deinem Projekt, nicht bei jemand anderem.
-      </p>
-      <input id="vok-cloud-url" class="vok-input" style="margin-bottom:6px" placeholder="Project URL (https://xxxx.supabase.co)" />
-      <input id="vok-cloud-key" class="vok-input" style="margin-bottom:6px" placeholder="publishable key" />
-      <button class="vok-btn" id="vok-cloud-save">Сачувај приступ<span class="vok-sub-de">Zugang speichern</span></button>
-    </div>
+    <div id="vok-install"></div>
 
-    <!-- 2. Zugang da, noch nicht angemeldet -->
-    <div id="vok-cloud-login" style="display:none">
-      <input id="vok-cloud-email" class="vok-input" type="email" style="margin-bottom:6px" placeholder="E-Mail" autocomplete="email" />
-      <input id="vok-cloud-pw" class="vok-input" type="password" style="margin-bottom:6px" placeholder="Passwort" autocomplete="current-password" />
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="vok-btn" id="vok-cloud-signin" style="flex:1">Пријава<span class="vok-sub-de">Anmelden</span></button>
-        <button class="vok-btn-ghost" id="vok-cloud-signup" style="flex:1">Регистрација<span class="vok-sub-de">Registrieren</span></button>
-      </div>
-      <button class="vok-btn-ghost" id="vok-cloud-magic" style="margin-top:6px;width:100%">Магични линк<span class="vok-sub-de">Magic Link per E-Mail</span></button>
-    </div>
-
-    <!-- 3. Angemeldet -->
-    <div id="vok-cloud-account" style="display:none">
-      <p class="vok-trans" style="margin:0 0 8px">Пријављен: <strong id="vok-cloud-email-shown"></strong></p>
-      <button class="vok-btn-ghost" id="vok-cloud-push" style="width:100%;margin-bottom:6px">Пренеси локалне податке у облак<span class="vok-sub-de">Lokale Daten in die Cloud übernehmen (überschreibt nichts)</span></button>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="vok-btn-ghost" id="vok-cloud-signout" style="flex:1">Одјава<span class="vok-sub-de">Abmelden</span></button>
-        <button class="vok-icon-btn danger" id="vok-cloud-forget" style="flex:1">Уклони приступ<span class="vok-sub-de">Zugang von diesem Gerät entfernen</span></button>
-      </div>
-    </div>
-
-    <p class="vok-status" id="vok-cloud-status"></p>
-  </div>
-
-  <p class="vok-h">Палатица</p>
-  <p class="vok-sub">Зрно по зрно погача, камен по камен палата</p>
-
-  <svg width="100%" height="10" viewBox="0 0 400 10" preserveAspectRatio="none" style="margin:14px 0;opacity:.55">
-    <path d="M0,8 L10,0 M12,8 L22,0 M24,8 L34,0 M36,8 L46,0 M48,8 L58,0 M60,8 L70,0 M72,8 L82,0 M84,8 L94,0 M96,8 L106,0 M108,8 L118,0 M120,8 L130,0 M132,8 L142,0 M144,8 L154,0 M156,8 L166,0 M168,8 L178,0 M180,8 L190,0 M192,8 L202,0 M204,8 L214,0 M216,8 L226,0 M228,8 L238,0 M240,8 L250,0 M252,8 L262,0 M264,8 L274,0 M276,8 L286,0 M288,8 L298,0 M300,8 L310,0 M312,8 L322,0 M324,8 L334,0 M336,8 L346,0 M348,8 L358,0 M360,8 L370,0 M372,8 L382,0 M384,8 L394,0" stroke="#A61C3C" stroke-width="1" fill="none"/>
-  </svg>
-
-  <div id="vok-install"></div>
-
-  <div id="vok-stats" style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap"></div>
-
-  <div id="vok-panes"></div>
+    <div id="vok-panes"></div>
+  </main>
 </div>
 
 <!-- Nur sichtbar, wenn die Seite per file:// geoeffnet wurde. Sonst versteckt. -->

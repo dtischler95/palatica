@@ -30,9 +30,9 @@ export const modes = (function(){
   }
   function gradeButtons(){
     return '<div style="display:flex;gap:8px;justify-content:center;margin-top:14px;flex-wrap:wrap">' +
-      '<button class="vok-btn-ghost vok-fail-btn">Још не знам<span class="vok-sub-de">weiß ich noch nicht</span></button>' +
-      '<button class="vok-btn-ghost vok-hard-btn">Знам донекле<span class="vok-sub-de">weiß ich so halb</span></button>' +
-      '<button class="vok-btn vok-good-btn">Знам добро<span class="vok-sub-de">weiß ich gut</span></button>' +
+      '<button class="vok-btn-ghost vok-fail-btn">Не знам<span class="vok-sub-de">nochmal</span></button>' +
+      '<button class="vok-btn-ghost vok-hard-btn">Половично<span class="vok-sub-de">unsicher</span></button>' +
+      '<button class="vok-btn vok-good-btn">Знам<span class="vok-sub-de">sitzt</span></button>' +
       '</div>';
   }
   function wireCommon(el, ctx){
@@ -59,7 +59,7 @@ export const modes = (function(){
         (ctx.quiz.revealed
           ? '<p class="vok-trans" style="font-size:15px;margin-top:6px">' + esc(back) +
               (e.ex ? '<br><span style="font-size:12px">' + esc(e.ex) + '</span>' : '') + '</p>' + gradeButtons()
-          : '<button class="vok-btn-ghost vok-reveal-btn" style="margin:10px auto 0">Прикажи превод<span class="vok-sub-de">Übersetzung zeigen</span></button>')
+          : '<button class="vok-btn-ghost vok-reveal-btn" style="margin:10px auto 0">Окрени<span class="vok-sub-de">umdrehen</span></button>')
       );
     },
     wire: function(el, ctx){

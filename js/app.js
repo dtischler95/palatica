@@ -3,6 +3,8 @@
 //
 // The only module the browser loads, pulls in the rest via imports.
 import { util } from './util.js';
+import { config } from './config.js';
+import { srs } from './srs.js';
 import { collections } from './collections.js';
 import { store } from './store.js';
 import { auth } from './auth.js';
@@ -19,21 +21,49 @@ import { install } from './ui/install.js';
 var wired = false;
 var unsubscribe = null;
 
+// One badge sits in the web sidebar, one in the mobile top bar. Both carry the
+// class, so update by class and keep the marker class intact (no className reset).
 function setBadge(){
-  var badge = util.el('vok-mode-badge');
-  if(auth.getMode() === 'cloud'){
-    badge.className = 'vok-badge cloud';
-    badge.textContent = auth.email() || 'Cloud';
-  } else {
-    badge.className = 'vok-badge';
-    badge.textContent = 'Локално / lokal — nur auf diesem Gerät';
-  }
+  var cloud = auth.getMode() === 'cloud';
+  var text = cloud ? (auth.email() || 'Облак') : 'Локално';
+  document.querySelectorAll('.vok-mode-badge').forEach(function(b){
+    b.classList.toggle('cloud', cloud);
+    b.textContent = text;
+  });
 }
 
 function flashBadge(msg){
-  var badge = util.el('vok-mode-badge');
-  badge.textContent = msg;
+  document.querySelectorAll('.vok-mode-badge').forEach(function(b){ b.textContent = msg; });
   setTimeout(setBadge, 4000);
+}
+
+// Resolves the stored preference ('auto'|'light'|'dark') to a concrete theme.
+// The inline script in index.html does this once pre-paint, this keeps it in sync.
+function applyTheme(){
+  var t = config.getTheme();
+  var dark = t === 'dark' || (t === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+  var m = document.querySelector('meta[name="theme-color"]');
+  if(m) m.setAttribute('content', dark ? '#211d18' : '#A61C3C');
+}
+
+function wireTheme(){
+  var btns = document.querySelectorAll('[data-theme-choice]');
+  var cur = config.getTheme();
+  btns.forEach(function(b){
+    b.classList.toggle('active', b.getAttribute('data-theme-choice') === cur);
+    b.addEventListener('click', function(){
+      config.setTheme(b.getAttribute('data-theme-choice'));
+      btns.forEach(function(x){ x.classList.toggle('active', x === b); });
+      applyTheme();
+    });
+  });
+  // Follow the OS live while on 'auto'.
+  try{
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(){
+      if(config.getTheme() === 'auto') applyTheme();
+    });
+  }catch(e){}
 }
 
 // Redraws the whole UI. Lives here instead of ui/shell.js, because that would
@@ -47,6 +77,9 @@ function render(){
 function wireOnce(){
   if(wired) return;
   wired = true;
+  // Custom SRS plan (if any) before anything renders or grades.
+  var storedSched = config.getSchedule();
+  if(storedSched) srs.setSchedule(storedSched);
   // Order matters: state first, then markup from the registry, then wiring.
   ui.initState();
   tpl.build();
@@ -58,8 +91,47 @@ function wireOnce(){
   learn.wireScreen();
   list.wireBackup();
   cloud.wire(switchProvider);
+  cloud.render();
+  wireTheme();
+  wireSrs();
+  document.querySelectorAll('[data-dir-choice]').forEach(function(b){
+    b.addEventListener('click', function(){ ui.setDirection(b.getAttribute('data-dir-choice')); });
+  });
   install.wire();
   install.render();
+}
+
+// Accepts a comma/space separated list of strictly ascending integers >= 1.
+function parseSchedule(str){
+  var parts = String(str).split(/[,\s]+/).filter(Boolean).map(Number);
+  if(parts.length < 1 || parts.length > 15) return null;
+  for(var i = 0; i < parts.length; i++){
+    if(!Number.isInteger(parts[i]) || parts[i] < 1) return null;
+    if(i > 0 && parts[i] <= parts[i - 1]) return null;
+  }
+  return parts;
+}
+
+function wireSrs(){
+  var input = util.el('vok-srs-input');
+  if(!input) return;
+  input.value = srs.SCHEDULE.join(', ');
+  util.el('vok-srs-save').addEventListener('click', function(){
+    var parsed = parseSchedule(input.value);
+    if(!parsed){ ui.ioStatus('vok-srs-status', 'Nur aufsteigende ganze Zahlen ab 1, z.B. 1, 3, 7, 14, 30.'); return; }
+    srs.setSchedule(parsed);
+    config.setSchedule(parsed);
+    input.value = srs.SCHEDULE.join(', ');
+    ui.ioStatus('vok-srs-status', 'Plan gespeichert.');
+    render();
+  });
+  util.el('vok-srs-reset').addEventListener('click', function(){
+    config.clearSchedule();
+    srs.resetSchedule();
+    input.value = srs.SCHEDULE.join(', ');
+    ui.ioStatus('vok-srs-status', 'Auf Standard zurückgesetzt.');
+    render();
+  });
 }
 
 async function switchProvider(mode){

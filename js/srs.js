@@ -1,8 +1,19 @@
 // Spaced-repetition logic, pure functions with no DB or DOM dependency.
 export const srs = (function(){
   var DAY = 24*60*60*1000;
-  var SCHEDULE = [1,3,7,14,30,60,120];
+  var DEFAULT_SCHEDULE = [1,3,7,14,30,60,120];
+  // Mutated in place so the exported reference and the closure below stay in sync.
+  var SCHEDULE = DEFAULT_SCHEDULE.slice();
   var LEARNED_INTERVAL = 30;
+
+  // Replaces the interval plan at runtime. gradePatch clamps reps into range,
+  // so changing the length never breaks existing entries; only future gradings
+  // use the new plan.
+  function setSchedule(arr){
+    SCHEDULE.splice(0, SCHEDULE.length);
+    arr.forEach(function(n){ SCHEDULE.push(n); });
+  }
+  function resetSchedule(){ setSchedule(DEFAULT_SCHEDULE); }
 
   function gradePatch(entry, level, now){
     now = now || Date.now();
@@ -39,6 +50,8 @@ export const srs = (function(){
     LEARNED_INTERVAL: LEARNED_INTERVAL,
     gradePatch: gradePatch,
     isDue: isDue,
-    isLearned: isLearned
+    isLearned: isLearned,
+    setSchedule: setSchedule,
+    resetSchedule: resetSchedule
   };
 })();

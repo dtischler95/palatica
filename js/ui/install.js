@@ -29,6 +29,12 @@ export const install = (function(){
     return navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
   }
 
+  function isSupportedOrigin(){
+    return window.location.protocol === 'https:' ||
+      window.location.hostname === 'localhost' ||
+      window.location.hostname === '127.0.0.1';
+  }
+
   function render(){
     var el = util.el('vok-install');
     if(!el) return;
@@ -56,6 +62,20 @@ export const install = (function(){
           '<p style="font-size:13px;color:var(--vok-ink-soft);margin:0">Додај на почетни екран: „Подели“ па „На почетни екран“.' +
             '<span class="vok-sub-de">In Safari das Teilen-Symbol antippen, dann „Zum Home-Bildschirm“. ' +
             'Ohne Installation löscht iOS die lokalen Daten nach etwa 7 Tagen ohne Nutzung.</span></p>' +
+          '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+            '<button class="vok-btn-ghost" id="vok-install-later">' + lbl({ sr: 'Разумем', de: 'Verstanden' }) + '</button>' +
+          '</div>' +
+        '</div>';
+      return;
+    }
+
+    // Generic fallback for HTTPS deployments such as GitHub Pages: show a hint when
+    // the browser does not fire the install prompt.
+    if(isSupportedOrigin()){
+      el.innerHTML =
+        '<div class="vok-install">' +
+          '<p style="font-size:13px;color:var(--vok-ink-soft);margin:0">Ова апликација може да се инсталира у ваш браузер.' +
+            '<span class="vok-sub-de">Im Browser auf „Installieren“ oder „Als App installieren“ gehen, wenn die Option verfügbar ist.</span></p>' +
           '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
             '<button class="vok-btn-ghost" id="vok-install-later">' + lbl({ sr: 'Разумем', de: 'Verstanden' }) + '</button>' +
           '</div>' +

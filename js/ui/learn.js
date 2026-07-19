@@ -81,18 +81,18 @@ export const learn = (function(){
     row.addEventListener('click', function(ev){
       var tile = ev.target.closest('.vok-mode-tile');
       if(!tile) return;
-      ui.state.practice.kind = tile.getAttribute('data-kind');
+      var kind = tile.getAttribute('data-kind');
+      ui.state.practice.kind = kind;
       pane.querySelectorAll('.vok-mode-tile').forEach(function(t){
         t.classList.toggle('selected', t === tile);
+      });
+      pane.querySelectorAll('.vok-opts-group').forEach(function(g){
+        g.classList.toggle('active', g.getAttribute('data-kind') === kind);
       });
     });
 
     pane.querySelectorAll('[data-dir]').forEach(function(btn){
-      btn.addEventListener('click', function(){
-        pane.querySelectorAll('[data-dir]').forEach(function(b){ b.classList.remove('active'); });
-        btn.classList.add('active');
-        ui.state.practice.dir = btn.getAttribute('data-dir');
-      });
+      btn.addEventListener('click', function(){ ui.setDirection(btn.getAttribute('data-dir')); });
     });
 
     util.el('vok-start').addEventListener('click', function(){

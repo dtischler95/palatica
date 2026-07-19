@@ -22,7 +22,7 @@ collections.register({
   exportFile: 'palatica-reci.json',
   addBtn:     { sr: 'Додај реч', de: 'Wort hinzufügen' },
   ph: {
-    word:   'реч или реченица (ћирилица или латиница)',
+    word:   'реч (ћирилица или латиница)',
     trans:  'deutsche Übersetzung',
     ex:     'Beispielsatz (optional)',
     cat:    'категорије, зарезом (нпр. придев, Пепа Прасе)',
@@ -36,9 +36,9 @@ collections.register({
 collections.register({
   kind: 'construction',
   name:       { sr: 'Реченице', de: 'Sätze' },
-  noun:       'конструкција',
+  noun:       'реченица',
   jsonKey:    'constructions',
-  exportFile: 'palatica-konstrukcije.json',
+  exportFile: 'palatica-recenice.json',
   addBtn:     { sr: 'Додај', de: 'Hinzufügen' },
   ph: {
     word:   'нпр. Мислим да...',
@@ -47,7 +47,7 @@ collections.register({
     cat:    'категорије, зарезом',
     search: '🔍 претрага'
   },
-  emptyList: 'Нема конструкција овде.',
-  emptyQuiz: 'Нема конструкција у овој категорији.',
+  emptyList: 'Нема реченица овде.',
+  emptyQuiz: 'Нема реченица у овој категорији.',
   modes: ['card']
 });

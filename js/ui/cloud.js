@@ -31,20 +31,8 @@ export const cloud = (function(){
     if(signedIn) util.el('vok-cloud-email-shown').textContent = auth.email() || '(angemeldet)';
   }
 
-  function toggle(){
-    var p = util.el('vok-cloud-panel');
-    var open = p.style.display === 'none';
-    p.style.display = open ? '' : 'none';
-    if(open) render();
-  }
-
   function wire(switchProvider){
     onSwitch = switchProvider;
-
-    util.el('vok-cloud-btn').addEventListener('click', toggle);
-    util.el('vok-cloud-close').addEventListener('click', function(){
-      util.el('vok-cloud-panel').style.display = 'none';
-    });
 
     // 1. Save credentials
     util.el('vok-cloud-save').addEventListener('click', function(){
@@ -134,5 +122,5 @@ export const cloud = (function(){
     });
   }
 
-  return { wire: wire, render: render, toggle: toggle };
+  return { wire: wire, render: render };
 })();

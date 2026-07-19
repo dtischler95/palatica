@@ -1,5 +1,6 @@
 // UI coordination: screen navigation, per-collection view state, shared helpers.
 import { util } from '../util.js';
+import { config } from '../config.js';
 import { store } from '../store.js';
 import { srs } from '../srs.js';
 import { collections } from '../collections.js';
@@ -8,10 +9,10 @@ import { stats } from './stats.js';
 
 export const ui = (function(){
 
-  var SCREENS = ['menu', 'practice', 'quiz', 'list', 'stats', 'settings'];
+  var SCREENS = ['home', 'practice', 'quiz', 'list', 'stats', 'settings'];
 
   // Per-collection view state plus the screen-wide practice selection.
-  var state = { byKind: {}, screen: 'menu', practice: { kind: null, dir: 'srp-de' } };
+  var state = { byKind: {}, screen: 'home', practice: { kind: null, dir: 'srp-de' } };
 
   function initState(){
     collections.all().forEach(function(c){
@@ -22,14 +23,27 @@ export const ui = (function(){
       };
     });
     state.practice.kind = collections.all()[0].kind;
+    state.practice.dir = config.getDir();
   }
   function vs(kind){ return state.byKind[kind]; }
+
+  // Single source for the direction: persists it and keeps the practice toggle
+  // and the settings control in sync (both button groups live in the DOM).
+  function setDirection(dir){
+    state.practice.dir = dir;
+    config.setDir(dir);
+    document.querySelectorAll('[data-dir]').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-dir') === dir); });
+    document.querySelectorAll('[data-dir-choice]').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-dir-choice') === dir); });
+  }
 
   function showScreen(name){
     state.screen = name;
     SCREENS.forEach(function(s){
       var p = util.el('vok-pane-' + s);
       if(p) p.classList.toggle('active', s === name);
+    });
+    document.querySelectorAll('#vok-nav [data-screen]').forEach(function(el){
+      el.classList.toggle('nav-on', el.getAttribute('data-screen') === name);
     });
     if(name === 'stats') stats.render();
   }
@@ -95,7 +109,12 @@ export const ui = (function(){
 
   // Header shows the total across all collections, each practice tile only its own.
   function renderHeaderStats(){
-    util.el('vok-stats').innerHTML = chips(store.state.entries);
+    var all = store.state.entries, now = Date.now();
+    var due = all.filter(function(e){ return srs.isDue(e, now); }).length;
+    var home = util.el('vok-home-due');
+    if(home) home.textContent = due;
+    var statsEl = util.el('vok-stats');
+    if(statsEl) statsEl.innerHTML = chips(all);
     collections.all().forEach(function(c){
       var el = util.el(tpl.ids(c.kind).learnStats);
       if(el) el.innerHTML = chips(store.entries(c.kind));
@@ -103,7 +122,9 @@ export const ui = (function(){
   }
 
   function wireShell(){
-    util.el('vok-panes').addEventListener('click', function(ev){
+    // Delegated on the whole app so the persistent nav (outside #vok-panes),
+    // the header gear and in-pane data-screen buttons all route here.
+    util.el('vok-app').addEventListener('click', function(ev){
       var nav = ev.target.closest('[data-screen]');
       if(nav){ showScreen(nav.getAttribute('data-screen')); return; }
 
@@ -119,6 +140,7 @@ export const ui = (function(){
 
   return {
     state: state, vs: vs, initState: initState, showScreen: showScreen,
+    setDirection: setDirection,
     fillSelect: fillSelect, fillDatalist: fillDatalist, armButton: armButton,
     renderPageControls: renderPageControls, ioStatus: ioStatus,
     renderHeaderStats: renderHeaderStats, wireShell: wireShell
