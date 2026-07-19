@@ -42,8 +42,8 @@ export const supabase = (function(){
       added_at: toIso(e.addedAt || Date.now()), meta: e.meta || {}
     };
   }
-  function rowToHist(r){ return { id: r.id, ts: toMs(r.ts), level: r.level, kind: r.kind }; }
-  function histToRow(h){ return { id: h.id, ts: toIso(h.ts), level: h.level, kind: h.kind }; }
+  function rowToHist(r){ return { id: r.id, ts: toMs(r.ts), level: r.level, kind: r.kind, entryId: r.entry_id || null }; }
+  function histToRow(h){ return { id: h.id, ts: toIso(h.ts), level: h.level, kind: h.kind, entry_id: h.entryId || null }; }
 
   function create(){
     return {

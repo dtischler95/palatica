@@ -22,6 +22,7 @@ import { install } from './ui/install.js';
 
 var wired = false;
 var unsubscribe = null;
+var currentMode = null;
 
 // One badge sits in the web sidebar, one in the mobile top bar. Both carry the
 // class, so update by class and keep the marker class intact (no className reset).
@@ -243,6 +244,7 @@ async function switchProvider(mode){
   wireOnce();
   setBadge();
   render();
+  currentMode = mode;
 }
 
 // Without a real origin (file://) there is no service worker, the app just
@@ -273,6 +275,14 @@ async function requestPersistence(){
 async function boot(){
   registerSW();
   requestPersistence();
+
+  auth.onChange(function(e){
+    if(currentMode === 'cloud' && e.mode !== 'cloud'){
+      flashBadge(i18n.t({ de: 'Sitzung abgelaufen, wechsle zu lokal', en: 'Session expired, switching to local' }));
+      switchProvider('local').catch(function(err){ console.error(err); });
+      cloud.render();
+    }
+  });
 
   // Go straight to cloud mode if a session already exists (e.g. magic-link redirect).
   var session = null;

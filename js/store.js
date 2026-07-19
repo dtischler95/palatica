@@ -102,7 +102,7 @@ export const store = (function(){
     if(!e.meta.introducedAt) e.meta.introducedAt = Date.now();
     var patch = srs.gradePatch(e, level);
     Object.keys(patch).forEach(function(k){ e[k] = patch[k]; });
-    var event = { id: util.uid(), ts: Date.now(), level: level, kind: e.kind };
+    var event = { id: util.uid(), ts: Date.now(), level: level, kind: e.kind, entryId: e.id };
     state.history.push(event);
     persist(provider.upsertEntries([e], snapshot()));
     persist(provider.insertHistory(event, snapshot()));
@@ -187,7 +187,7 @@ export const store = (function(){
         ent.push(e);
       });
     });
-    hist = (payload.history || []).map(function(h){ return { id: h.id || util.uid(), ts: h.ts, level: h.level, kind: h.kind || 'word' }; });
+    hist = (payload.history || []).map(function(h){ return { id: h.id || util.uid(), ts: h.ts, level: h.level, kind: h.kind || 'word', entryId: h.entryId || null }; });
     state.entries = ent;
     state.history = hist;
     // Decks live outside the provider snapshot (local-only), so restore them here.
@@ -216,7 +216,7 @@ export const store = (function(){
     state.history.forEach(function(h){ known[h.id] = true; });
     var newHist = (snap.history || [])
       .filter(function(h){ return h.id && !known[h.id]; })
-      .map(function(h){ return { id: h.id, ts: h.ts, level: h.level, kind: h.kind || 'word' }; });
+      .map(function(h){ return { id: h.id, ts: h.ts, level: h.level, kind: h.kind || 'word', entryId: h.entryId || null }; });
     state.history = state.history.concat(newHist);
 
     if(touched.length) persist(provider.upsertEntries(touched, snapshot()));
