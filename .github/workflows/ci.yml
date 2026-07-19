@@ -44,12 +44,18 @@ jobs:
             BASE="origin/${{ github.base_ref }}"
             CHANGED="$(git diff --name-only "$BASE"...HEAD)"
           else
-            CHANGED="$(git diff-tree --no-commit-id --name-only -r "${{ github.sha }}")"
+            BEFORE="${{ github.event.before }}"
+            if [ -z "$BEFORE" ] || ! git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then
+              CHANGED="$(git diff-tree --no-commit-id --name-only -r "${{ github.sha }}")"
+            else
+              CHANGED="$(git diff --name-only "$BEFORE" "${{ github.sha }}")"
+            fi
           fi
 
           echo "$CHANGED"
 
-          if echo "$CHANGED" | grep -Eq '^(index\.html|manifest\.json|sw\.js|css/|fonts/|icons/|js/|\.github/workflows/(ci|pages|skip-non-app)\.yml)$'; then
+          # Exact files anchored with $, whole directories matched by prefix.
+          if echo "$CHANGED" | grep -Eq '^(index\.html|manifest\.json|sw\.js|\.github/workflows/(ci|pages|skip-non-app)\.yml)$|^(css|fonts|icons|js)/'; then
             echo "run=true" >> "$GITHUB_OUTPUT"
           else
             echo "run=false" >> "$GITHUB_OUTPUT"

@@ -32,6 +32,8 @@ jobs:
       deploy: ${{ steps.filter.outputs.deploy }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - id: filter
         shell: bash
         run: |
@@ -41,10 +43,16 @@ jobs:
             exit 0
           fi
 
-          CHANGED="$(git diff-tree --no-commit-id --name-only -r "${{ github.sha }}")"
+          BEFORE="${{ github.event.before }}"
+          if [ -z "$BEFORE" ] || ! git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then
+            CHANGED="$(git diff-tree --no-commit-id --name-only -r "${{ github.sha }}")"
+          else
+            CHANGED="$(git diff --name-only "$BEFORE" "${{ github.sha }}")"
+          fi
           echo "$CHANGED"
 
-          if echo "$CHANGED" | grep -Eq '^(index\.html|manifest\.json|sw\.js|css/|fonts/|icons/|js/|\.github/workflows/(pages|ci|skip-non-app)\.yml)$'; then
+          # Exact files anchored with $, whole directories matched by prefix.
+          if echo "$CHANGED" | grep -Eq '^(index\.html|manifest\.json|sw\.js|\.github/workflows/(pages|ci|skip-non-app)\.yml)$|^(css|fonts|icons|js)/'; then
             echo "deploy=true" >> "$GITHUB_OUTPUT"
           else
             echo "deploy=false" >> "$GITHUB_OUTPUT"
