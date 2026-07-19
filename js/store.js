@@ -4,6 +4,7 @@
 import { util } from './util.js';
 import { srs } from './srs.js';
 import { collections } from './collections.js';
+import { decks } from './decks.js';
 
 export const store = (function(){
 
@@ -95,6 +96,10 @@ export const store = (function(){
   function gradeEntry(id, level){
     var e = find(id);
     if(!e) return;
+    // First grading marks the card as introduced, so the daily-deck new-card
+    // budget can tell "never seen" from "seen but failed" (fail resets reps to 0).
+    if(!e.meta || typeof e.meta !== 'object') e.meta = {};
+    if(!e.meta.introducedAt) e.meta.introducedAt = Date.now();
     var patch = srs.gradePatch(e, level);
     Object.keys(patch).forEach(function(k){ e[k] = patch[k]; });
     var event = { id: util.uid(), ts: Date.now(), level: level, kind: e.kind };
@@ -184,6 +189,8 @@ export const store = (function(){
     hist = (payload.history || []).map(function(h){ return { id: h.id || util.uid(), ts: h.ts, level: h.level, kind: h.kind || 'word' }; });
     state.entries = ent;
     state.history = hist;
+    // Decks live outside the provider snapshot (local-only), so restore them here.
+    if(payload.decks) decks.replaceAll(payload.decks);
     persist(provider.replaceAll(snapshot()));
     notify();
     return { entries: ent.length, history: hist.length };
@@ -227,6 +234,7 @@ export const store = (function(){
     var out = { version: 2, exportedAt: new Date().toISOString() };
     collections.all().forEach(function(c){ out[c.jsonKey] = entries(c.kind); });
     out.history = state.history;
+    out.decks = decks.all();
     return out;
   }
 

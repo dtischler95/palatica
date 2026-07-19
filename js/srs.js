@@ -4,7 +4,8 @@ export const srs = (function(){
   var DEFAULT_SCHEDULE = [1,3,7,14,30,60,120];
   // Mutated in place so the exported reference and the closure below stay in sync.
   var SCHEDULE = DEFAULT_SCHEDULE.slice();
-  var LEARNED_INTERVAL = 30;
+  var DEFAULT_LEARNED_INTERVAL = 30;
+  var LEARNED_INTERVAL = DEFAULT_LEARNED_INTERVAL;
 
   // Replaces the interval plan at runtime. gradePatch clamps reps into range,
   // so changing the length never breaks existing entries; only future gradings
@@ -14,6 +15,9 @@ export const srs = (function(){
     arr.forEach(function(n){ SCHEDULE.push(n); });
   }
   function resetSchedule(){ setSchedule(DEFAULT_SCHEDULE); }
+
+  function setLearnedInterval(n){ LEARNED_INTERVAL = n; }
+  function resetLearnedInterval(){ LEARNED_INTERVAL = DEFAULT_LEARNED_INTERVAL; }
 
   function gradePatch(entry, level, now){
     now = now || Date.now();
@@ -44,14 +48,17 @@ export const srs = (function(){
 
   function isDue(entry, now){ return (entry.dueAt || 0) <= (now || Date.now()); }
   function isLearned(entry){ return (entry.interval || 0) >= LEARNED_INTERVAL; }
+  function getLearnedInterval(){ return LEARNED_INTERVAL; }
 
   return {
     SCHEDULE: SCHEDULE,
-    LEARNED_INTERVAL: LEARNED_INTERVAL,
     gradePatch: gradePatch,
     isDue: isDue,
     isLearned: isLearned,
     setSchedule: setSchedule,
-    resetSchedule: resetSchedule
+    resetSchedule: resetSchedule,
+    getLearnedInterval: getLearnedInterval,
+    setLearnedInterval: setLearnedInterval,
+    resetLearnedInterval: resetLearnedInterval
   };
 })();
