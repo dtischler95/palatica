@@ -17,20 +17,16 @@ export const learn = (function(){
   var currentCtx = null;
 
   // Open mode: the whole (optionally tag-filtered) collection, no due gate and no
-  // cap. SRS still runs in the background, it just no longer creates pressure.
-  // Due cards (in the chosen direction) shuffled to the front, the rest behind
-  // them ascending by that direction's dueAt.
+  // cap. Pure random draw, grading is disabled here so it never touches SRS
+  // state or interferes with SRS decks covering the same cards.
   function openPool(kind){
     var st = ui.vs(kind);
-    var dir = ui.state.practice.dir, now = Date.now();
-    var base = st.quizCat === 'sve'
+    var base = st.quizCat.length === 0
       ? store.entries(kind)
-      : store.entries(kind).filter(function(e){ return (e.tags||[]).indexOf(st.quizCat) >= 0; });
-    var due = [], notDue = [];
-    base.forEach(function(e){ (srs.isDueDir(e, dir, now) ? due : notDue).push(e); });
-    util.shuffle(due);
-    notDue.sort(function(a, b){ return srs.stateOf(a, dir).dueAt - srs.stateOf(b, dir).dueAt; });
-    return due.concat(notDue);
+      : store.entries(kind).filter(function(e){
+          return (e.tags||[]).some(function(t){ return st.quizCat.indexOf(t) >= 0; });
+        });
+    return util.shuffle(base.slice());
   }
 
   // Daily mode: due reviews from the deck plus up to newPerDay never-seen cards,
@@ -78,7 +74,7 @@ export const learn = (function(){
   function render(kind){
     var c = collections.get(kind), st = ui.vs(kind);
     var modesList = c ? c.modes : ['card'];
-    var emptyQuiz = c ? c.emptyQuiz : { sr: 'Ово деке нема карата за данас.', de: 'Dieses Deck hat heute keine Karten.', en: 'This deck has no cards for today.' };
+    var emptyQuiz = c ? c.emptyQuiz : { sr: 'Овај шпил данас нема картица. Дневни циљ је искоришћен или ниједна карта још није уведена.', de: 'Dieses Deck hat heute keine Karten mehr. Das Tagespensum ist erreicht, oder noch keine Karte wurde eingeführt.', en: 'This deck has no cards left today. The daily quota is used up, or no card has been introduced yet.' };
     var el = util.el('vok-quiz-box');
     var q = st.quiz;
     if(!q){ el.innerHTML = ''; currentCtx = null; updateUndoBtn(kind); return; }
@@ -96,7 +92,7 @@ export const learn = (function(){
       el.innerHTML = '<div class="vok-card" style="flex-direction:column;text-align:center;padding:20px">' +
         '<p class="vok-word">' + tpl.lbl({ sr: 'Готово за сада!', de: 'Fertig für jetzt!', en: 'Done for now!' }) + '</p>' +
         '<p class="vok-trans">' + tpl.lbl({ sr: 'Настави кад год хоћеш.', de: 'Mach weiter, wann du willst.', en: 'Continue whenever you like.' }) + '</p>' +
-        '<button class="vok-btn-ghost quiz-close" style="margin:10px auto 0">' + tpl.lbl({ sr: 'Затвори', de: 'Schließen', en: 'Close' }) + '</button></div>';
+        '<button class="vok-btn-ghost quiz-close" style="margin:10px auto 0">' + tpl.lbl({ sr: 'Затвори', de: 'schließen', en: 'close' }) + '</button></div>';
       el.querySelector('.quiz-close').addEventListener('click', function(){ closeQuiz(kind); });
       currentCtx = null;
       updateUndoBtn(kind);
@@ -109,9 +105,16 @@ export const learn = (function(){
       entry: entry,
       quiz: q,
       dir: ui.state.practice.dir,
+      srsMode: kind === 'srsdeck',
       rerender: function(){ render(kind); },
       grade: function(level){
         store.gradeEntry(entry.id, level, ui.state.practice.dir);
+        q.idx++; q.revealed = false;
+        render(kind);
+      },
+      // Free mode: advance without touching SRS state, so it never disturbs
+      // an SRS deck covering the same cards.
+      advance: function(){
         q.idx++; q.revealed = false;
         render(kind);
       }
@@ -155,10 +158,12 @@ export const learn = (function(){
 
     if(ev.key === 'Escape'){ ev.preventDefault(); closeQuiz(quizKind); return; }
     if(ev.key === ' ' || ev.key === 'Enter'){
-      if(!q.revealed){ ev.preventDefault(); q.revealed = true; render(quizKind); }
+      ev.preventDefault();
+      if(!q.revealed){ q.revealed = true; render(quizKind); }
+      else if(currentCtx && !currentCtx.srsMode){ currentCtx.advance(); }
       return;
     }
-    if(q.revealed && currentCtx){
+    if(q.revealed && currentCtx && currentCtx.srsMode){
       if(ev.key === '1'){ ev.preventDefault(); currentCtx.grade('fail'); }
       else if(ev.key === '2'){ ev.preventDefault(); currentCtx.grade('hard'); }
       else if(ev.key === '3'){ ev.preventDefault(); currentCtx.grade('good'); }
@@ -167,7 +172,41 @@ export const learn = (function(){
 
   function wire(kind){
     var st = ui.vs(kind);
-    util.el(tpl.ids(kind).quizCat).addEventListener('change', function(){ st.quizCat = this.value; });
+    var id = tpl.ids(kind);
+    var btn = util.el(id.quizCatBtn), panel = util.el(id.quizCat);
+    if(!btn || !panel) return;
+
+    function close(){
+      panel.hidden = true;
+      btn.setAttribute('aria-expanded', 'false');
+    }
+    btn.addEventListener('click', function(ev){
+      ev.stopPropagation();
+      var opening = panel.hidden;
+      // Only one category panel open at a time.
+      document.querySelectorAll('.vok-catmenu-panel').forEach(function(p){ p.hidden = true; });
+      document.querySelectorAll('.vok-catmenu-btn').forEach(function(b){ b.setAttribute('aria-expanded', 'false'); });
+      panel.hidden = !opening;
+      btn.setAttribute('aria-expanded', String(opening));
+    });
+    panel.addEventListener('click', function(ev){
+      ev.stopPropagation();
+      if(ev.target.closest('[data-catmenu="all"]')){
+        st.quizCat = [];
+        panel.querySelectorAll('input[type=checkbox]').forEach(function(cb){ cb.checked = false; });
+        btn.textContent = ui.catMenuLabel(st.quizCat, st.quizCat);
+        return;
+      }
+      var cb = ev.target.closest('input[type=checkbox]');
+      if(!cb) return;
+      var cat = cb.value;
+      var i = st.quizCat.indexOf(cat);
+      if(cb.checked && i < 0) st.quizCat.push(cat);
+      else if(!cb.checked && i >= 0) st.quizCat.splice(i, 1);
+      btn.textContent = ui.catMenuLabel(st.quizCat, st.quizCat);
+    });
+    document.addEventListener('click', close);
+    document.addEventListener('keydown', function(ev){ if(ev.key === 'Escape') close(); });
   }
 
   // Wired once: tile selection, direction toggle, start button, quiz keyboard, undo.

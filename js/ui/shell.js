@@ -19,13 +19,13 @@ export const ui = (function(){
     collections.all().forEach(function(c){
       state.byKind[c.kind] = {
         filter: 'danas', cat: 'sve', search: '',
-        quizCat: 'sve', mode: c.modes[0],
+        quizCat: [], mode: c.modes[0],
         page: 1, editId: null, quiz: null
       };
     });
     // The SRS-deck tile is not a registered collection but reuses the same quiz
     // state slot, so learn.render can drive it through ui.vs('srsdeck').
-    state.byKind.srsdeck = { quizCat: 'sve', mode: 'card', quiz: null };
+    state.byKind.srsdeck = { quizCat: [], mode: 'card', quiz: null };
     state.practice.kind = collections.all()[0].kind;
     state.practice.dir = config.getDir();
   }
@@ -59,6 +59,32 @@ export const ui = (function(){
         : '<option value="">— ' + tpl.line({ sr: 'изабери', de: 'auswählen', en: 'select' }) + ' —</option>') +
       cats.map(function(c){ return '<option value="' + util.escapeHtml(c) + '">' + util.escapeHtml(tpl.sr(c)) + '</option>'; }).join('');
     if(cats.indexOf(current) >= 0 || current === 'sve') el.value = current;
+  }
+
+  // Multi-select category dropdown for free-mode practice: a button showing a
+  // summary plus a checkbox panel. Empty selection means "no filter, show
+  // everything" — the same sentinel meaning the old single-select's "sve" had,
+  // so there is no separate "none" action: unchecking everything already gets
+  // you back to that state. `selected` is pruned to cats still valid, callers
+  // persist the pruned array back onto their state.
+  function catMenuLabel(cats, selected){
+    if(selected.length === 0) return tpl.line({ sr: 'Све категорије', de: 'Alle Kategorien', en: 'All categories' });
+    if(selected.length === 1) return tpl.sr(selected[0]);
+    return selected.length + ' ' + tpl.t({ de: 'Kategorien', en: 'categories' });
+  }
+  function fillCatMenu(panelEl, btnEl, cats, selected){
+    if(!panelEl || !btnEl) return selected;
+    var pruned = selected.filter(function(s){ return cats.indexOf(s) >= 0; });
+    panelEl.innerHTML =
+      '<div class="vok-catmenu-actions">' +
+        '<button type="button" class="vok-btn-ghost" data-catmenu="all">' + tpl.line({ sr: 'Све категорије', de: 'alle', en: 'all' }) + '</button>' +
+      '</div>' +
+      cats.map(function(c){
+        return '<label class="vok-catmenu-item"><input type="checkbox" value="' + util.escapeHtml(c) + '"' +
+          (pruned.indexOf(c) >= 0 ? ' checked' : '') + '> ' + util.escapeHtml(tpl.sr(c)) + '</label>';
+      }).join('');
+    btnEl.textContent = catMenuLabel(cats, pruned);
+    return pruned;
   }
 
   function fillDatalist(el, cats){
@@ -107,9 +133,16 @@ export const ui = (function(){
     var now = Date.now();
     var due = entries.filter(function(e){ return srs.isDueAny(e, now); }).length;
     var learned = entries.filter(srs.isLearnedBoth).length;
-    return '<div class="vok-tag" style="background:var(--vok-due-bg);color:var(--vok-due-fg)">' + due + ' ' + tpl.lbl({ sr: 'данас доспева', de: 'heute fällig', en: 'due today' }) + '</div>' +
+    return '<div class="vok-tag" style="background:var(--vok-due-bg);color:var(--vok-due-fg)">' + due + ' ' + tpl.lbl({ sr: 'доспева', de: 'fällig', en: 'due' }) + '</div>' +
       '<div class="vok-tag" style="background:var(--vok-ok-bg);color:var(--vok-ok-fg)">' + learned + ' ' + tpl.lbl({ sr: 'научено', de: 'gelernt', en: 'learned' }) + '</div>' +
       '<div class="vok-tag" style="background:var(--vok-card);color:var(--vok-ink-soft);border:1px solid var(--vok-line)">' + entries.length + ' ' + tpl.lbl({ sr: 'укупно', de: 'insgesamt', en: 'total' }) + '</div>';
+  }
+
+  // No "due" or "learned" chip here: these tiles pick a collection for the
+  // uncapped free mode, which ignores both (SRS progress only moves through
+  // decks), so only the pool size the random draw comes from is relevant.
+  function tileChips(entries){
+    return '<div class="vok-tag" style="background:var(--vok-card);color:var(--vok-ink-soft);border:1px solid var(--vok-line)">' + entries.length + ' ' + tpl.lbl({ sr: 'укупно', de: 'insgesamt', en: 'total' }) + '</div>';
   }
 
   // Header shows the total across all collections, each practice tile only its own.
@@ -122,7 +155,7 @@ export const ui = (function(){
     if(statsEl) statsEl.innerHTML = chips(all);
     collections.all().forEach(function(c){
       var el = util.el(tpl.ids(c.kind).learnStats);
-      if(el) el.innerHTML = chips(store.entries(c.kind));
+      if(el) el.innerHTML = tileChips(store.entries(c.kind));
     });
   }
 
@@ -146,7 +179,7 @@ export const ui = (function(){
   return {
     state: state, vs: vs, initState: initState, showScreen: showScreen,
     setDirection: setDirection,
-    fillSelect: fillSelect, fillDatalist: fillDatalist, armButton: armButton,
+    fillSelect: fillSelect, fillCatMenu: fillCatMenu, catMenuLabel: catMenuLabel, fillDatalist: fillDatalist, armButton: armButton,
     renderPageControls: renderPageControls, ioStatus: ioStatus,
     renderHeaderStats: renderHeaderStats, wireShell: wireShell
   };

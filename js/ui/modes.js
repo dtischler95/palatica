@@ -32,25 +32,36 @@ export const modes = (function(){
   }
   function gradeButtons(){
     return '<div style="display:flex;gap:8px;justify-content:center;margin-top:14px;flex-wrap:wrap">' +
-      '<button class="vok-btn-ghost vok-fail-btn" title="1">' + i18n.lbl({ sr: 'Не знам', de: 'nochmal', en: 'again' }) + '</button>' +
-      '<button class="vok-btn-ghost vok-hard-btn" title="2">' + i18n.lbl({ sr: 'Половично', de: 'unsicher', en: 'unsure' }) + '</button>' +
-      '<button class="vok-btn vok-good-btn" title="3">' + i18n.lbl({ sr: 'Знам', de: 'sitzt', en: 'got it' }) + '</button>' +
+      '<button class="vok-btn-ghost vok-fail-btn" title="1">' + i18n.lbl({ sr: 'Не знам', de: 'weiß ich nicht', en: "don't know" }) + '</button>' +
+      '<button class="vok-btn-ghost vok-hard-btn" title="2">' + i18n.lbl({ sr: 'Донекле знам', de: 'weiß ich halb', en: 'half know' }) + '</button>' +
+      '<button class="vok-btn vok-good-btn" title="3">' + i18n.lbl({ sr: 'Знам', de: 'weiß ich', en: 'know it' }) + '</button>' +
+      '</div>';
+  }
+  // Free mode has no grading, just move on: it must never write SRS state.
+  function advanceButton(){
+    return '<div style="display:flex;justify-content:center;margin-top:14px">' +
+      '<button class="vok-btn vok-advance-btn" title="Space">' + i18n.lbl({ sr: 'Даље', de: 'weiter', en: 'next' }) + '</button>' +
       '</div>';
   }
   function wireCommon(el, ctx){
     var speak = el.querySelector('.quiz-speak');
     if(speak) speak.addEventListener('click', function(){ util.speak(ctx.entry.word); });
-    var good = el.querySelector('.vok-good-btn');
-    if(good){
-      good.addEventListener('click', function(){ ctx.grade('good'); });
-      el.querySelector('.vok-hard-btn').addEventListener('click', function(){ ctx.grade('hard'); });
-      el.querySelector('.vok-fail-btn').addEventListener('click', function(){ ctx.grade('fail'); });
+    if(ctx.srsMode){
+      var good = el.querySelector('.vok-good-btn');
+      if(good){
+        good.addEventListener('click', function(){ ctx.grade('good'); });
+        el.querySelector('.vok-hard-btn').addEventListener('click', function(){ ctx.grade('hard'); });
+        el.querySelector('.vok-fail-btn').addEventListener('click', function(){ ctx.grade('fail'); });
+      }
+    } else {
+      var next = el.querySelector('.vok-advance-btn');
+      if(next) next.addEventListener('click', function(){ ctx.advance(); });
     }
   }
 
   register({
     id: 'card',
-    label: { sr: 'Картице', de: 'Karteikarten' },
+    label: { sr: 'Картице', de: 'Karteikarten', en: 'Flashcards' },
     render: function(ctx){
       var e = ctx.entry, esc = util.escapeHtml;
       // word and ex are Serbian (transliterate), trans is the user's translation (never).
@@ -63,7 +74,8 @@ export const modes = (function(){
         '<p class="vok-word" style="font-size:22px">' + front + speakBtn() + '</p>' +
         (ctx.quiz.revealed
           ? '<p class="vok-trans" style="font-size:15px;margin-top:6px">' + back +
-              (e.ex ? '<br><span style="font-size:12px">' + esc(i18n.sr(e.ex)) + '</span>' : '') + '</p>' + gradeButtons()
+              (e.ex ? '<br><span style="font-size:12px">' + esc(i18n.sr(e.ex)) + '</span>' : '') + '</p>' +
+              (ctx.srsMode ? gradeButtons() : advanceButton())
           : '<button class="vok-btn-ghost vok-reveal-btn" style="margin:10px auto 0" title="Space">' + i18n.lbl({ sr: 'Окрени', de: 'umdrehen', en: 'flip' }) + '</button>')
       );
     },

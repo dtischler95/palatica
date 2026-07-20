@@ -73,6 +73,13 @@ body{margin:0;background:var(--vok-bg);min-height:100vh;padding:1.5rem 0}
 .vok-field-lbl{font-family:'Bitter',serif;font-weight:600;font-size:12px;color:var(--vok-ink-soft);padding-left:2px}
 .vok-field-lbl .vok-sub-de{display:inline;margin-left:5px}
 .vok-select{background:var(--vok-card);border:1px solid var(--vok-line);border-radius:8px;padding:8px 10px;font-family:'PT Serif',serif;font-size:13px;color:var(--vok-ink)}
+/* Multi-select category dropdown: button opens an absolutely positioned panel. */
+.vok-catmenu{position:relative}
+.vok-catmenu-btn{width:100%;text-align:left;cursor:pointer}
+.vok-catmenu-panel{position:absolute;z-index:5;top:calc(100% + 4px);left:0;right:0;max-height:220px;overflow-y:auto;background:var(--vok-card);border:1px solid var(--vok-line);border-radius:8px;padding:6px;box-shadow:0 4px 14px rgba(0,0,0,.15)}
+.vok-catmenu-actions{margin-bottom:4px}
+.vok-catmenu-item{display:flex;align-items:center;gap:6px;padding:5px 4px;font-family:'PT Serif',serif;font-size:13px;color:var(--vok-ink);cursor:pointer}
+.vok-catmenu-item:hover{color:var(--vok-accent)}
 .vok-btn{font-family:'Bitter',serif;font-weight:600;font-size:13px;background:var(--vok-red);color:#F8F0E4;border:none;border-radius:8px;padding:9px 16px;cursor:pointer}
 .vok-btn:hover{background:var(--vok-red-dark)}
 .vok-btn:disabled{opacity:.5;cursor:default}

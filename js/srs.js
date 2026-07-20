@@ -65,7 +65,12 @@ export const srs = (function(){
     return next;
   }
 
-  function isDueDir(entry, dir, now){ return stateOf(entry, dir).dueAt <= (now || Date.now()); }
+  // Only introduced cards (graded at least once) can be due. A never-graded
+  // card defaults to dueAt 0, which would otherwise read as due immediately.
+  function isDueDir(entry, dir, now){
+    if(!(entry && entry.srs && entry.srs[dir])) return false;
+    return stateOf(entry, dir).dueAt <= (now || Date.now());
+  }
   function isDueAny(entry, now){
     now = now || Date.now();
     return isDueDir(entry, DIRS[0], now) || isDueDir(entry, DIRS[1], now);

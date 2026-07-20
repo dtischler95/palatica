@@ -52,7 +52,7 @@ export const deckedit = (function(){
   function updateCount(){
     var n = Object.keys(selected).filter(function(id){ return selected[id]; }).length;
     var el = util.el('vok-deckedit-count');
-    if(el) el.textContent = n + ' ' + i18n.line({ sr: 'означено', de: 'ausgewählt', en: 'selected' });
+    if(el) el.textContent = n + ' ' + i18n.line({ sr: 'означено у шпилу', de: 'im Deck ausgewählt', en: 'selected for the deck' });
   }
 
   function renderList(){
@@ -74,8 +74,8 @@ export const deckedit = (function(){
     util.el('vok-deckedit-npd').value = d ? d.newPerDay : decks.DEFAULT_NEW_PER_DAY;
     util.el('vok-deckedit-search').value = '';
     util.el('vok-deckedit-title').innerHTML = d
-      ? i18n.lbl({ sr: 'Уреди деку', de: 'Deck bearbeiten', en: 'Edit deck' })
-      : i18n.lbl({ sr: 'Направи деку', de: 'Deck erstellen', en: 'Create deck' });
+      ? i18n.lbl({ sr: 'Уреди шпил', de: 'Deck bearbeiten', en: 'Edit deck' })
+      : i18n.lbl({ sr: 'Направи шпил', de: 'Deck erstellen', en: 'Create deck' });
     util.el('vok-deckedit-delete').style.display = d ? '' : 'none';
     ui.fillSelect(util.el('vok-deckedit-cat'), allCats(), false);
     renderList();
@@ -95,17 +95,17 @@ export const deckedit = (function(){
           return '<option value="' + util.escapeHtml(d.id) + '"' + (d.id === cur ? ' selected' : '') + '>' +
             util.escapeHtml(d.name || 'Deck') + ' · ' + d.cardIds.length + '</option>';
         }).join('')
-      : '<option value="">— ' + i18n.line({ sr: 'нема дека', de: 'kein Deck', en: 'no deck' }) + ' —</option>';
+      : '<option value="">— ' + i18n.line({ sr: 'нема шпилова', de: 'kein Deck', en: 'no deck' }) + ' —</option>';
 
     var d = decks.get(cur);
     var info = util.el('vok-deck-info');
     if(info) info.textContent = d
       ? (d.cardIds.length + ' ' + i18n.t({ de: 'Karten', en: 'cards' }) + ' · ' + d.newPerDay + ' ' + i18n.t({ de: 'neu/Tag', en: 'new/day' }))
-      : i18n.t({ de: 'Noch kein Deck. Lege eins an.', en: 'No deck yet. Create one.' });
+      : i18n.t({ de: 'Noch kein Deck angelegt. Über „Deck erstellen" eins anlegen.', en: 'No deck yet. Use "create deck" to make one.' });
     var editBtn = util.el('vok-deck-edit');
     if(editBtn) editBtn.style.display = d ? '' : 'none';
     var chips = util.el('vok-srsdeck-chips');
-    if(chips) chips.innerHTML = '<div class="vok-tag" style="background:var(--vok-card);color:var(--vok-ink-soft);border:1px solid var(--vok-line)">' + ds.length + ' ' + i18n.lbl({ sr: 'дека', de: 'Decks', en: 'decks' }) + '</div>';
+    if(chips) chips.innerHTML = '<div class="vok-tag" style="background:var(--vok-card);color:var(--vok-ink-soft);border:1px solid var(--vok-line)">' + ds.length + ' ' + i18n.lbl({ sr: 'шпилова', de: 'Decks', en: 'decks' }) + '</div>';
   }
 
   function wire(){
@@ -160,7 +160,7 @@ export const deckedit = (function(){
     var del = util.el('vok-deckedit-delete');
     if(del) del.addEventListener('click', function(){
       if(!editingId) return;
-      ui.armButton(this, i18n.lbl({ sr: 'Потврди? Брише деку', de: 'Deck löschen', en: 'Delete deck' }), function(){
+      ui.armButton(this, i18n.lbl({ sr: 'Потврди?', de: 'bestätigen', en: 'confirm' }), function(){
         decks.remove(editingId);
         if(ui.state.practice.deckId === editingId) ui.state.practice.deckId = null;
         renderDeckControls();

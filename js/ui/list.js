@@ -42,8 +42,8 @@ export const list = (function(){
         '<input class="vok-input edit-ex" value="' + esc(e.ex || '') + '" placeholder="' + tpl.line({ sr: 'пример (опционо)', de: 'Beispiel (optional)', en: 'example (optional)' }) + '" />' +
         '<input class="vok-input edit-cat" value="' + esc((e.tags||[]).join(', ')) + '" placeholder="' + tpl.line({ sr: 'категорије, зарезом', de: 'Kategorien, mit Komma', en: 'categories, comma-separated' }) + '" />' +
         '<div style="display:flex;gap:8px;margin-top:6px">' +
-          '<button class="vok-btn edit-save">' + tpl.lbl({ sr: 'Сачувај', de: 'Speichern', en: 'Save' }) + '</button>' +
-          '<button class="vok-btn-ghost edit-cancel">' + tpl.lbl({ sr: 'Откажи', de: 'Abbrechen', en: 'Cancel' }) + '</button>' +
+          '<button class="vok-btn edit-save">' + tpl.lbl({ sr: 'Сачувај', de: 'speichern', en: 'save' }) + '</button>' +
+          '<button class="vok-btn-ghost edit-cancel">' + tpl.lbl({ sr: 'Откажи', de: 'abbrechen', en: 'cancel' }) + '</button>' +
         '</div></div>';
     }
     var days = util.daysUntil(srs.minDueAt(e));
@@ -69,7 +69,7 @@ export const list = (function(){
     var c = collections.get(kind), id = tpl.ids(kind), st = ui.vs(kind);
     var cats = store.distinctCats(kind);
     ui.fillSelect(util.el(id.catfilter), cats, true);
-    ui.fillSelect(util.el(id.quizCat), cats, true);
+    st.quizCat = ui.fillCatMenu(util.el(id.quizCat), util.el(id.quizCatBtn), cats, st.quizCat);
     ui.fillSelect(util.el(id.delCatSel), cats, false);
     ui.fillSelect(util.el(id.renFrom), cats, false);
     ui.fillDatalist(util.el(id.catList), cats);
@@ -175,7 +175,7 @@ export const list = (function(){
 
     util.el(id.exportBtn).addEventListener('click', function(){
       util.download(JSON.stringify(store.exportCollection(kind), null, 2), c.exportFile);
-      ui.ioStatus(id.ioStatus, tpl.line({ sr: 'Извезено', de: 'Exportiert.', en: 'Exported.' }));
+      ui.ioStatus(id.ioStatus, tpl.line({ sr: 'Извезено.', de: 'Exportiert.', en: 'Exported.' }));
     });
     util.el(id.importBtn).addEventListener('click', function(){ util.el(id.importFile).click(); });
     util.el(id.importFile).addEventListener('change', function(ev){
@@ -186,9 +186,10 @@ export const list = (function(){
         try{
           var data = JSON.parse(evt.target.result);
           var incoming = Array.isArray(data) ? data : (data[c.jsonKey] || []);
-          ui.ioStatus(id.ioStatus, tpl.line({ sr: 'Увезено', de: 'Importiert', en: 'Imported' }) + ': ' + store.importEntries(kind, incoming) + '.');
+          var n = store.importEntries(kind, incoming);
+          ui.ioStatus(id.ioStatus, tpl.line({ sr: 'Увезено', de: 'Importiert', en: 'Imported' }) + ': ' + n + ' ' + tpl.sr(c.noun) + ' / ' + tpl.t({ de: 'Einträge', en: 'entries' }) + '.');
         } catch(err){
-          ui.ioStatus(id.ioStatus, tpl.line({ sr: 'Грешка при увозу', de: 'Fehler beim Import — Datei prüfen.', en: 'Import error — check the file.' }));
+          ui.ioStatus(id.ioStatus, tpl.line({ sr: 'Грешка при увозу — провери фајл.', de: 'Fehler beim Import — Datei prüfen.', en: 'Import error — check the file.' }));
         }
         ev.target.value = '';
       };
@@ -201,7 +202,7 @@ export const list = (function(){
   function wireBackup(){
     util.el('vok-export-all').addEventListener('click', function(){
       util.download(JSON.stringify(store.exportBackup(), null, 2), 'palatica-backup.json');
-      ui.ioStatus('vok-io-status-all', tpl.line({ sr: 'Комплетан бекап извезен', de: 'Voll-Backup exportiert.', en: 'Full backup exported.' }));
+      ui.ioStatus('vok-io-status-all', tpl.line({ sr: 'Комплетан бекап извезен.', de: 'Voll-Backup exportiert.', en: 'Full backup exported.' }));
     });
     util.el('vok-import-all-btn').addEventListener('click', function(){ util.el('vok-import-all-file').click(); });
     util.el('vok-import-all-file').addEventListener('change', function(ev){
@@ -214,15 +215,15 @@ export const list = (function(){
           var data = JSON.parse(evt.target.result);
           var known = collections.all().some(function(c){ return data[c.jsonKey]; });
           if(!known && !data.history) throw new Error('kein Backup-Format');
-          ui.armButton(btn, tpl.lbl({ sr: 'Потврди? Брише све!', de: 'ersetzt alles', en: 'replaces everything' }), function(){
+          ui.armButton(btn, tpl.lbl({ sr: 'Потврди?', de: 'bestätigen', en: 'confirm' }), function(){
             var r = store.importBackup(data);
             ui.ioStatus('vok-io-status-all', tpl.line({ sr: 'Увезено', de: 'Importiert', en: 'Imported' }) + ': ' +
               r.entries + ' ' + tpl.sr('уноса') + ' / ' + tpl.t({ de: 'Einträge', en: 'entries' }) + ', ' +
-              r.history + ' ' + tpl.sr('понављања') + ' / ' + tpl.t({ de: 'Wdh.', en: 'reviews' }));
+              r.history + ' ' + tpl.sr('понављања') + ' / ' + tpl.t({ de: 'Wdh.', en: 'reviews' }) + '.');
           });
-          ui.ioStatus('vok-io-status-all', tpl.sr('Кликни поново да потврдиш') + ' — ' + tpl.t({ de: 'nochmal klicken zum Bestätigen.', en: 'click again to confirm.' }));
+          ui.ioStatus('vok-io-status-all', tpl.sr('Кликни поново да потврдиш.') + ' — ' + tpl.t({ de: 'Ersetzt alles auf diesem Gerät.', en: 'Replaces everything on this device.' }));
         } catch(err){
-          ui.ioStatus('vok-io-status-all', tpl.line({ sr: 'Грешка при увозу', de: 'Fehler beim Import — Datei prüfen.', en: 'Import error — check the file.' }));
+          ui.ioStatus('vok-io-status-all', tpl.line({ sr: 'Грешка при увозу — провери фајл.', de: 'Fehler beim Import — Datei prüfen.', en: 'Import error — check the file.' }));
         }
         ev.target.value = '';
       };

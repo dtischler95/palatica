@@ -74,7 +74,7 @@ function wireTheme(){
 var NAV_LABELS = {
   home:     { sr: 'Почетна', de: 'Startseite', en: 'Home' },
   practice: { sr: 'Вежбај', de: 'Üben', en: 'Practice' },
-  list:     { sr: 'Листа', de: 'Wortliste', en: 'List' },
+  list:     { sr: 'Листа', de: 'Liste', en: 'List' },
   stats:    { sr: 'Статистика', de: 'Statistik', en: 'Statistics' },
   settings: { sr: 'Подешавања', de: 'Einstellungen', en: 'Settings' }
 };
@@ -233,7 +233,7 @@ async function switchProvider(mode){
 
   store.onError(function(e){
     console.error('Speichern fehlgeschlagen', e);
-    flashBadge(i18n.t({ de: 'Fehler beim Speichern', en: 'Error while saving' }));
+    flashBadge(i18n.t({ de: 'Fehler beim Speichern — später erneut versuchen.', en: 'Error while saving — try again later.' }));
   });
 
   await store.init(provider, { seedIfEmpty: mode === 'local' });
