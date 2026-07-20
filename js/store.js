@@ -12,6 +12,8 @@ export const store = (function(){
   var provider = null;
   var subscribers = [];
   var errorHandler = function(e){ console.error('persist failed', e); };
+  // One-step undo of the last grading, captured in gradeEntry.
+  var lastGrade = null;
 
   function snapshot(){ return { entries: state.entries, history: state.history }; }
   function notify(){ subscribers.forEach(function(fn){ fn(state); }); }
@@ -25,14 +27,26 @@ export const store = (function(){
   function normalize(e){
     if(!Array.isArray(e.tags)) e.tags = e.cat ? [e.cat] : [];
     if(e.addedAt === undefined) e.addedAt = 0;
-    if(e.reps === undefined) e.reps = 0;
-    if(e.interval === undefined) e.interval = 0;
-    if(e.dueAt === undefined) e.dueAt = 0;
-    if(e.learnedAt === undefined) e.learnedAt = null;
+    // Migrate legacy flat SRS fields (reps/interval/dueAt/learnedAt) into the
+    // per-direction srs object under the srp-de key. Old direction had no split.
+    if(!e.srs || typeof e.srs !== 'object'){
+      if(e.reps !== undefined || e.interval !== undefined || e.dueAt !== undefined || e.learnedAt !== undefined){
+        e.srs = { 'srp-de': { reps: e.reps || 0, interval: e.interval || 0, dueAt: e.dueAt || 0, learnedAt: e.learnedAt || null } };
+      } else {
+        e.srs = {};
+      }
+    }
+    delete e.reps; delete e.interval; delete e.dueAt; delete e.learnedAt;
     if(!e.kind) e.kind = 'word';
     // Free-form space for extra per-entry data (image, audio, note), so that doesn't
     // need a schema migration.
     if(!e.meta || typeof e.meta !== 'object') e.meta = {};
+    // Migrate legacy directionless deck marker into the per-direction map.
+    if(e.meta.introducedAt){
+      if(!e.meta.introduced || typeof e.meta.introduced !== 'object') e.meta.introduced = {};
+      if(!e.meta.introduced['srp-de']) e.meta.introduced['srp-de'] = e.meta.introducedAt;
+      delete e.meta.introducedAt;
+    }
     return e;
   }
 
@@ -60,7 +74,7 @@ export const store = (function(){
     ];
     state.entries = samples.map(function(s){
       return normalize({ id: util.uid(), kind: s.kind, word: s.word, trans: s.trans, ex: s.ex,
-        tags: [], reps: 0, interval: 0, dueAt: 0, learnedAt: null, addedAt: now });
+        tags: [], srs: {}, addedAt: now });
     });
   }
 
@@ -76,7 +90,7 @@ export const store = (function(){
   function addEntry(kind, data){
     var e = normalize({
       id: util.uid(), kind: kind, word: data.word, trans: data.trans, ex: data.ex || '',
-      tags: data.tags || [], reps: 0, interval: 0, dueAt: 0, learnedAt: null,
+      tags: data.tags || [], srs: {},
       addedAt: Date.now(), meta: data.meta || {}
     });
     state.entries.push(e);
@@ -93,24 +107,58 @@ export const store = (function(){
     notify();
   }
 
-  function gradeEntry(id, level){
+  function gradeEntry(id, level, dir){
     var e = find(id);
     if(!e) return;
-    // First grading marks the card as introduced, so the daily-deck new-card
-    // budget can tell "never seen" from "seen but failed" (fail resets reps to 0).
     if(!e.meta || typeof e.meta !== 'object') e.meta = {};
-    if(!e.meta.introducedAt) e.meta.introducedAt = Date.now();
-    var patch = srs.gradePatch(e, level);
-    Object.keys(patch).forEach(function(k){ e[k] = patch[k]; });
-    var event = { id: util.uid(), ts: Date.now(), level: level, kind: e.kind, entryId: e.id };
+    var event = { id: util.uid(), ts: Date.now(), level: level, kind: e.kind, entryId: e.id, dir: dir };
+    // Snapshot for one-step undo, captured before any mutation.
+    lastGrade = {
+      entryId: e.id,
+      prevSrs: JSON.parse(JSON.stringify(e.srs || {})),
+      prevIntroduced: e.meta.introduced ? JSON.parse(JSON.stringify(e.meta.introduced)) : null,
+      historyId: event.id
+    };
+    // First grading in a direction marks it introduced, so the daily-deck new-card
+    // budget can tell "never seen" from "seen but failed" (fail resets reps to 0).
+    if(!e.meta.introduced || typeof e.meta.introduced !== 'object') e.meta.introduced = {};
+    if(!e.meta.introduced[dir]) e.meta.introduced[dir] = Date.now();
+    var next = Object.assign({}, e.srs);
+    next[dir] = srs.gradePatch(e, level, dir);
+    e.srs = next;
     state.history.push(event);
     persist(provider.upsertEntries([e], snapshot()));
     persist(provider.insertHistory(event, snapshot()));
     notify();
   }
 
+  // Restores srs and the deck marker from the pre-grading snapshot, drops the
+  // history event, returns the affected entry id (null if nothing to undo).
+  function undoLastGrade(){
+    if(!lastGrade) return null;
+    var e = find(lastGrade.entryId);
+    if(!e){ lastGrade = null; return null; }
+    e.srs = JSON.parse(JSON.stringify(lastGrade.prevSrs || {}));
+    if(!e.meta || typeof e.meta !== 'object') e.meta = {};
+    if(lastGrade.prevIntroduced) e.meta.introduced = JSON.parse(JSON.stringify(lastGrade.prevIntroduced));
+    else delete e.meta.introduced;
+    var hid = lastGrade.historyId;
+    state.history = state.history.filter(function(h){ return h.id !== hid; });
+    persist(provider.upsertEntries([e], snapshot()));
+    persist(provider.deleteHistory([hid], snapshot()));
+    lastGrade = null;
+    notify();
+    return e.id;
+  }
+  function canUndo(){ return !!lastGrade; }
+
   function resetProgress(id){
-    updateEntry(id, { reps: 0, interval: 0, dueAt: 0, learnedAt: null });
+    var e = find(id);
+    if(!e) return;
+    e.srs = {};
+    if(e.meta) delete e.meta.introduced;
+    persist(provider.upsertEntries([e], snapshot()));
+    notify();
   }
 
   function removeEntries(ids){
@@ -187,7 +235,7 @@ export const store = (function(){
         ent.push(e);
       });
     });
-    hist = (payload.history || []).map(function(h){ return { id: h.id || util.uid(), ts: h.ts, level: h.level, kind: h.kind || 'word', entryId: h.entryId || null }; });
+    hist = (payload.history || []).map(function(h){ return { id: h.id || util.uid(), ts: h.ts, level: h.level, kind: h.kind || 'word', entryId: h.entryId || null, dir: h.dir || null }; });
     state.entries = ent;
     state.history = hist;
     // Decks live outside the provider snapshot (local-only), so restore them here.
@@ -216,7 +264,7 @@ export const store = (function(){
     state.history.forEach(function(h){ known[h.id] = true; });
     var newHist = (snap.history || [])
       .filter(function(h){ return h.id && !known[h.id]; })
-      .map(function(h){ return { id: h.id, ts: h.ts, level: h.level, kind: h.kind || 'word', entryId: h.entryId || null }; });
+      .map(function(h){ return { id: h.id, ts: h.ts, level: h.level, kind: h.kind || 'word', entryId: h.entryId || null, dir: h.dir || null }; });
     state.history = state.history.concat(newHist);
 
     if(touched.length) persist(provider.upsertEntries(touched, snapshot()));
@@ -232,7 +280,7 @@ export const store = (function(){
   }
 
   function exportBackup(){
-    var out = { version: 2, exportedAt: new Date().toISOString() };
+    var out = { version: 3, exportedAt: new Date().toISOString() };
     collections.all().forEach(function(c){ out[c.jsonKey] = entries(c.kind); });
     out.history = state.history;
     out.decks = decks.all();
@@ -243,6 +291,7 @@ export const store = (function(){
     state: state, init: init, subscribe: subscribe, onError: onError, notify: notify,
     entries: entries, find: find, distinctCats: distinctCats,
     addEntry: addEntry, updateEntry: updateEntry, gradeEntry: gradeEntry, resetProgress: resetProgress,
+    undoLastGrade: undoLastGrade, canUndo: canUndo,
     removeEntry: removeEntry, removeEntries: removeEntries,
     deleteDuplicates: deleteDuplicates, deleteAddedToday: deleteAddedToday,
     deleteByCategory: deleteByCategory, renameCategory: renameCategory,

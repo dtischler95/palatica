@@ -20,11 +20,12 @@ export const deckedit = (function(){
   }
 
   function visibleEntries(){
-    var q = (util.el('vok-deckedit-search').value || '').toLowerCase();
+    // util.searchKey folds script and diacritics, so a Latin query without
+    // diacritics matches Cyrillic-stored words.
+    var q = util.searchKey(util.el('vok-deckedit-search').value || '');
     return store.state.entries.filter(function(e){
       if(!q) return true;
-      return (e.word || '').toLowerCase().indexOf(q) >= 0 ||
-             (e.trans || '').toLowerCase().indexOf(q) >= 0;
+      return util.searchKey(e.word).indexOf(q) >= 0 || util.searchKey(e.trans).indexOf(q) >= 0;
     });
   }
 

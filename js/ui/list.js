@@ -10,19 +10,22 @@ import { tpl } from './templates.js';
 export const list = (function(){
   var PAGE_SIZE = 20;
 
+  // Compares via util.searchKey (transliterated, diacritics folded) so a Latin
+  // query without diacritics finds Cyrillic-stored words. Non-Cyrillic passes
+  // through, so German translations still match.
   function matchesSearch(e, q){
     if(!q) return true;
-    q = q.toLowerCase();
-    return (e.word||'').toLowerCase().indexOf(q) >= 0 ||
-           (e.trans||'').toLowerCase().indexOf(q) >= 0 ||
-           (e.ex||'').toLowerCase().indexOf(q) >= 0;
+    q = util.searchKey(q);
+    return util.searchKey(e.word).indexOf(q) >= 0 ||
+           util.searchKey(e.trans).indexOf(q) >= 0 ||
+           util.searchKey(e.ex).indexOf(q) >= 0;
   }
 
   function filtered(kind){
     var st = ui.vs(kind), now = Date.now();
     var arr = store.entries(kind);
-    if(st.filter === 'danas') arr = arr.filter(function(e){ return srs.isDue(e, now); });
-    else if(st.filter === 'naucene') arr = arr.filter(srs.isLearned);
+    if(st.filter === 'danas') arr = arr.filter(function(e){ return srs.isDueAny(e, now); });
+    else if(st.filter === 'naucene') arr = arr.filter(srs.isLearnedBoth);
     if(st.cat !== 'sve') arr = arr.filter(function(e){ return (e.tags||[]).indexOf(st.cat) >= 0; });
     if(st.search) arr = arr.filter(function(e){ return matchesSearch(e, st.search); });
     return arr;
@@ -43,10 +46,10 @@ export const list = (function(){
           '<button class="vok-btn-ghost edit-cancel">' + tpl.lbl({ sr: 'Откажи', de: 'Abbrechen', en: 'Cancel' }) + '</button>' +
         '</div></div>';
     }
-    var days = util.daysUntil(e.dueAt);
-    var tag = srs.isLearned(e)
+    var days = util.daysUntil(srs.minDueAt(e));
+    var tag = srs.isLearnedBoth(e)
       ? '<span class="vok-tag" style="background:var(--vok-ok-bg);color:var(--vok-ok-fg)">' + tpl.lbl({ sr: 'научено', de: 'gelernt', en: 'learned' }) + '</span>'
-      : srs.isDue(e)
+      : srs.isDueAny(e)
         ? '<span class="vok-tag" style="background:var(--vok-due-bg);color:var(--vok-due-fg)">' + tpl.lbl({ sr: 'доспева', de: 'fällig', en: 'due' }) + '</span>'
         : '<span class="vok-tag" style="background:var(--vok-card);color:var(--vok-ink-soft);border:1px solid var(--vok-line)">' + esc(tpl.sr('за ' + days + ' д.')) + '<span class="vok-sub-de">' + tpl.t({ de: 'in ' + days + ' T.', en: 'in ' + days + ' d.' }) + '</span></span>';
     var chips = (e.tags||[]).map(function(t){ return '<span class="vok-cat-chip">' + esc(tpl.sr(t)) + '</span>'; }).join('');

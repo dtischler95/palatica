@@ -32,9 +32,9 @@ export const modes = (function(){
   }
   function gradeButtons(){
     return '<div style="display:flex;gap:8px;justify-content:center;margin-top:14px;flex-wrap:wrap">' +
-      '<button class="vok-btn-ghost vok-fail-btn">' + i18n.lbl({ sr: 'Не знам', de: 'nochmal', en: 'again' }) + '</button>' +
-      '<button class="vok-btn-ghost vok-hard-btn">' + i18n.lbl({ sr: 'Половично', de: 'unsicher', en: 'unsure' }) + '</button>' +
-      '<button class="vok-btn vok-good-btn">' + i18n.lbl({ sr: 'Знам', de: 'sitzt', en: 'got it' }) + '</button>' +
+      '<button class="vok-btn-ghost vok-fail-btn" title="1">' + i18n.lbl({ sr: 'Не знам', de: 'nochmal', en: 'again' }) + '</button>' +
+      '<button class="vok-btn-ghost vok-hard-btn" title="2">' + i18n.lbl({ sr: 'Половично', de: 'unsicher', en: 'unsure' }) + '</button>' +
+      '<button class="vok-btn vok-good-btn" title="3">' + i18n.lbl({ sr: 'Знам', de: 'sitzt', en: 'got it' }) + '</button>' +
       '</div>';
   }
   function wireCommon(el, ctx){
@@ -64,7 +64,7 @@ export const modes = (function(){
         (ctx.quiz.revealed
           ? '<p class="vok-trans" style="font-size:15px;margin-top:6px">' + back +
               (e.ex ? '<br><span style="font-size:12px">' + esc(i18n.sr(e.ex)) + '</span>' : '') + '</p>' + gradeButtons()
-          : '<button class="vok-btn-ghost vok-reveal-btn" style="margin:10px auto 0">' + i18n.lbl({ sr: 'Окрени', de: 'umdrehen', en: 'flip' }) + '</button>')
+          : '<button class="vok-btn-ghost vok-reveal-btn" style="margin:10px auto 0" title="Space">' + i18n.lbl({ sr: 'Окрени', de: 'umdrehen', en: 'flip' }) + '</button>')
       );
     },
     wire: function(el, ctx){

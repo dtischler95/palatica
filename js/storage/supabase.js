@@ -29,21 +29,19 @@ export const supabase = (function(){
   function rowToEntry(r){
     return {
       id: r.id, kind: r.kind, word: r.word, trans: r.trans, ex: r.ex || '',
-      tags: r.tags || [], reps: r.reps || 0, interval: r.interval_days || 0,
-      dueAt: toMs(r.due_at) || 0, learnedAt: toMs(r.learned_at), addedAt: toMs(r.added_at) || 0,
-      meta: r.meta || {}
+      tags: r.tags || [], srs: r.srs || {},
+      addedAt: toMs(r.added_at) || 0, meta: r.meta || {}
     };
   }
   function entryToRow(e){
     return {
       id: e.id, kind: e.kind, word: e.word, trans: e.trans, ex: e.ex || '',
-      tags: e.tags || [], reps: e.reps || 0, interval_days: e.interval || 0,
-      due_at: toIso(e.dueAt || Date.now()), learned_at: toIso(e.learnedAt),
+      tags: e.tags || [], srs: e.srs || {},
       added_at: toIso(e.addedAt || Date.now()), meta: e.meta || {}
     };
   }
-  function rowToHist(r){ return { id: r.id, ts: toMs(r.ts), level: r.level, kind: r.kind, entryId: r.entry_id || null }; }
-  function histToRow(h){ return { id: h.id, ts: toIso(h.ts), level: h.level, kind: h.kind, entry_id: h.entryId || null }; }
+  function rowToHist(r){ return { id: r.id, ts: toMs(r.ts), level: r.level, kind: r.kind, entryId: r.entry_id || null, dir: r.dir || null }; }
+  function histToRow(h){ return { id: h.id, ts: toIso(h.ts), level: h.level, kind: h.kind, entry_id: h.entryId || null, dir: h.dir || null }; }
 
   function create(){
     return {
@@ -74,6 +72,12 @@ export const supabase = (function(){
       async insertHistory(event){
         var sb = await getClient();
         var res = await sb.from('history').insert(histToRow(event));
+        if(res.error) throw res.error;
+      },
+      async deleteHistory(ids){
+        if(!ids.length) return;
+        var sb = await getClient();
+        var res = await sb.from('history').delete().in('id', ids);
         if(res.error) throw res.error;
       },
       async replaceAll(snapshot){

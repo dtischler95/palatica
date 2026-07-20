@@ -151,6 +151,7 @@ export const tpl = (function(){
     return '<div id="vok-pane-quiz" class="vok-pane">' +
       '<div class="vok-screen-head">' +
         navBtn('practice', { sr: '← Прекини', de: 'abbrechen', en: 'cancel' }) +
+        '<button class="vok-btn-ghost" id="vok-quiz-undo" style="display:none">' + lbl({ sr: '↩ Врати', de: 'rückgängig', en: 'undo' }) + '</button>' +
       '</div>' +
       '<div id="vok-quiz-box"></div>' +
       '</div>';
@@ -165,7 +166,7 @@ export const tpl = (function(){
         '<button class="vok-icon-btn danger" id="vok-deckedit-delete" style="display:none">' + lbl({ sr: 'Обриши деку', de: 'Deck löschen', en: 'Delete deck' }) + '</button>' +
       '</div>' +
       '<p class="vok-h" style="font-size:18px;margin-bottom:4px" id="vok-deckedit-title">' + lbl({ sr: 'Направи деку', de: 'Deck erstellen', en: 'Create deck' }) + '</p>' +
-      '<p class="vok-hint">' + t({ de: 'Häkchen setzen bestimmt, welche Karten fest im Deck sind. Importe kommen hier nie von selbst rein.', en: 'The checkboxes decide which cards belong to the deck. Imports never land here on their own.' }) + '</p>' +
+      '<p class="vok-hint">' + t({ de: 'Häkchen setzen bestimmt, welche Karten fest im Deck sind.', en: 'The checkboxes decide which cards belong to the deck.' }) + '</p>' +
 
       '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">' +
         '<label class="vok-field" style="flex:2;min-width:160px"><span class="vok-field-lbl">' + lbl({ sr: 'Име деке', de: 'Deckname', en: 'Deck name' }) + '</span>' +

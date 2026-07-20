@@ -1,6 +1,9 @@
 // Spaced-repetition logic, pure functions with no DB or DOM dependency.
+// State is per direction: entry.srs['srp-de'] and entry.srs['de-srp'], each
+// { reps, interval, dueAt, learnedAt }. A missing direction means never practiced.
 export const srs = (function(){
   var DAY = 24*60*60*1000;
+  var DIRS = ['srp-de', 'de-srp'];
   var DEFAULT_SCHEDULE = [1,3,7,14,30,60,120];
   // Mutated in place so the exported reference and the closure below stay in sync.
   var SCHEDULE = DEFAULT_SCHEDULE.slice();
@@ -19,9 +22,23 @@ export const srs = (function(){
   function setLearnedInterval(n){ LEARNED_INTERVAL = n; }
   function resetLearnedInterval(){ LEARNED_INTERVAL = DEFAULT_LEARNED_INTERVAL; }
 
-  function gradePatch(entry, level, now){
+  // Reads the state for one direction, filling missing values with fresh-card
+  // defaults so callers never touch entry.srs[dir] directly.
+  function stateOf(entry, dir){
+    var s = (entry && entry.srs && entry.srs[dir]) || null;
+    return {
+      reps: (s && s.reps) || 0,
+      interval: (s && s.interval) || 0,
+      dueAt: (s && s.dueAt) || 0,
+      learnedAt: (s && s.learnedAt) || null
+    };
+  }
+
+  // New state for one direction only. Caller writes it into entry.srs[dir].
+  function gradePatch(entry, level, dir, now){
     now = now || Date.now();
-    var reps = entry.reps || 0;
+    var cur = stateOf(entry, dir);
+    var reps = cur.reps || 0;
     var interval;
 
     if(level === 'good'){
@@ -36,26 +53,48 @@ export const srs = (function(){
     }
 
     var d0 = new Date(now); d0.setHours(0,0,0,0);
-    var patch = {
+    var next = {
       reps: reps,
       interval: interval,
-      dueAt: d0.getTime() + interval * DAY
+      dueAt: d0.getTime() + interval * DAY,
+      learnedAt: cur.learnedAt || null
     };
-    if(interval >= LEARNED_INTERVAL && !entry.learnedAt){
-      patch.learnedAt = now;
+    if(interval >= LEARNED_INTERVAL && !next.learnedAt){
+      next.learnedAt = now;
     }
-    return patch;
+    return next;
   }
 
-  function isDue(entry, now){ return (entry.dueAt || 0) <= (now || Date.now()); }
-  function isLearned(entry){ return (entry.interval || 0) >= LEARNED_INTERVAL; }
+  function isDueDir(entry, dir, now){ return stateOf(entry, dir).dueAt <= (now || Date.now()); }
+  function isDueAny(entry, now){
+    now = now || Date.now();
+    return isDueDir(entry, DIRS[0], now) || isDueDir(entry, DIRS[1], now);
+  }
+  function isLearnedDir(entry, dir){ return stateOf(entry, dir).interval >= LEARNED_INTERVAL; }
+  function isLearnedBoth(entry){ return isLearnedDir(entry, DIRS[0]) && isLearnedDir(entry, DIRS[1]); }
+  // Timestamp at which the second direction crossed the learned threshold; null
+  // until both directions are learned.
+  function learnedBothAt(entry){
+    var a = stateOf(entry, DIRS[0]).learnedAt;
+    var b = stateOf(entry, DIRS[1]).learnedAt;
+    return (a && b) ? Math.max(a, b) : null;
+  }
+  function minDueAt(entry){
+    return Math.min(stateOf(entry, DIRS[0]).dueAt, stateOf(entry, DIRS[1]).dueAt);
+  }
   function getLearnedInterval(){ return LEARNED_INTERVAL; }
 
   return {
     SCHEDULE: SCHEDULE,
+    DIRS: DIRS,
+    stateOf: stateOf,
     gradePatch: gradePatch,
-    isDue: isDue,
-    isLearned: isLearned,
+    isDueDir: isDueDir,
+    isDueAny: isDueAny,
+    isLearnedDir: isLearnedDir,
+    isLearnedBoth: isLearnedBoth,
+    learnedBothAt: learnedBothAt,
+    minDueAt: minDueAt,
     setSchedule: setSchedule,
     resetSchedule: resetSchedule,
     getLearnedInterval: getLearnedInterval,

@@ -105,8 +105,8 @@ export const ui = (function(){
 
   function chips(entries){
     var now = Date.now();
-    var due = entries.filter(function(e){ return srs.isDue(e, now); }).length;
-    var learned = entries.filter(srs.isLearned).length;
+    var due = entries.filter(function(e){ return srs.isDueAny(e, now); }).length;
+    var learned = entries.filter(srs.isLearnedBoth).length;
     return '<div class="vok-tag" style="background:var(--vok-due-bg);color:var(--vok-due-fg)">' + due + ' ' + tpl.lbl({ sr: 'данас доспева', de: 'heute fällig', en: 'due today' }) + '</div>' +
       '<div class="vok-tag" style="background:var(--vok-ok-bg);color:var(--vok-ok-fg)">' + learned + ' ' + tpl.lbl({ sr: 'научено', de: 'gelernt', en: 'learned' }) + '</div>' +
       '<div class="vok-tag" style="background:var(--vok-card);color:var(--vok-ink-soft);border:1px solid var(--vok-line)">' + entries.length + ' ' + tpl.lbl({ sr: 'укупно', de: 'insgesamt', en: 'total' }) + '</div>';
@@ -115,7 +115,7 @@ export const ui = (function(){
   // Header shows the total across all collections, each practice tile only its own.
   function renderHeaderStats(){
     var all = store.state.entries, now = Date.now();
-    var due = all.filter(function(e){ return srs.isDue(e, now); }).length;
+    var due = all.filter(function(e){ return srs.isDueAny(e, now); }).length;
     var home = util.el('vok-home-due');
     if(home) home.textContent = due;
     var statsEl = util.el('vok-stats');

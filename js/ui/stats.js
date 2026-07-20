@@ -1,6 +1,7 @@
 // Stats pane: reviews and learned entries per week, last 8 weeks.
 import { util } from '../util.js';
 import { store } from '../store.js';
+import { srs } from '../srs.js';
 import { i18n } from '../i18n.js';
 
 export const stats = (function(){
@@ -31,14 +32,14 @@ export const stats = (function(){
       return history.filter(function(h){ return util.weekKey(h.ts) === wk; }).length;
     });
     var learnedCounts = weeks.map(function(wk){
-      return all.filter(function(e){ return e.learnedAt && util.weekKey(e.learnedAt) === wk; }).length;
+      return all.filter(function(e){ var l = srs.learnedBothAt(e); return l && util.weekKey(l) === wk; }).length;
     });
 
     renderBars('vok-chart-reviews', reviewCounts, weeks);
     renderBars('vok-chart-learned', learnedCounts, weeks);
 
     var totalReviews = history.length;
-    var totalLearned = all.filter(function(e){ return e.learnedAt; }).length;
+    var totalLearned = all.filter(function(e){ return srs.learnedBothAt(e); }).length;
     var thisWeek = reviewCounts[reviewCounts.length - 1];
     util.el('vok-stat-summary').innerHTML =
       '<div class="vok-tag" style="background:var(--vok-card);color:var(--vok-ink-soft);border:1px solid var(--vok-line)">' + totalReviews + ' ' + i18n.lbl({ sr: 'понављања укупно', de: 'Wiederholungen gesamt', en: 'reviews total' }) + '</div>' +

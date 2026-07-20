@@ -33,6 +33,22 @@ export const util = (function(){
     return out;
   }
 
+  // Fisher-Yates, in place. Returns the same array.
+  function shuffle(arr){
+    for(var i = arr.length - 1; i > 0; i--){
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+    }
+    return arr;
+  }
+
+  // Search normalization: transliterate, lowercase, fold diacritics so queries
+  // typed without them still match (kuca finds kuća, djak finds đak).
+  function searchKey(s){
+    return toLatin(s == null ? '' : s).toLowerCase()
+      .replace(/đ/g, 'dj').replace(/[čć]/g, 'c').replace(/š/g, 's').replace(/ž/g, 'z');
+  }
+
   function escapeHtml(s){
     return String(s == null ? '' : s)
       .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
@@ -108,6 +124,6 @@ export const util = (function(){
   return {
     DAY: DAY, uid: uid, today0: today0, daysUntil: daysUntil,
     weekKey: weekKey, weekLabel: weekLabel, parseTags: parseTags,
-    uniq: uniq, escapeHtml: escapeHtml, el: el, speak: speak, toLatin: toLatin, download: download
+    uniq: uniq, shuffle: shuffle, searchKey: searchKey, escapeHtml: escapeHtml, el: el, speak: speak, toLatin: toLatin, download: download
   };
 })();

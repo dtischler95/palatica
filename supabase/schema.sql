@@ -1,5 +1,8 @@
 -- Palatica schema for Supabase (Postgres).
 -- Run once in the project's SQL editor.
+-- Existing databases: drop the entries and history tables first, then run this
+-- file again. The SRS state moved from flat columns to a single jsonb column, so
+-- there is no in-place ALTER migration.
 -- Row Level Security is what keeps the public anon key safe: without it, anyone
 -- holding the frontend-visible key could read and write every row. Per-user rows
 -- fall out of that for free and let a second person learn on the same DB with
@@ -15,11 +18,9 @@ create table if not exists entries (
   trans         text not null,
   ex            text not null default '',
   tags          text[] not null default '{}',
-  reps          int  not null default 0,
-  -- "interval" is reserved in Postgres, hence interval_days.
-  interval_days int  not null default 0,
-  due_at        timestamptz not null default now(),
-  learned_at    timestamptz,
+  -- Per-direction SRS state: { "srp-de": {reps,interval,dueAt,learnedAt}, ... }.
+  -- Timestamps stay as millisecond numbers inside the jsonb, no ISO conversion.
+  srs           jsonb not null default '{}'::jsonb,
   added_at      timestamptz not null default now(),
   -- Free-form space for later per-entry data (image path, audio, note), so such
   -- additions need no schema change.
@@ -32,7 +33,9 @@ create table if not exists history (
   entry_id uuid references entries(id) on delete set null,
   ts       timestamptz not null default now(),
   level    text not null check (level in ('good','hard','fail')),
-  kind     text not null
+  kind     text not null,
+  -- Practiced direction ('srp-de' | 'de-srp'); nullable, no CHECK.
+  dir      text
 );
 
 alter table entries enable row level security;
@@ -51,6 +54,6 @@ create policy "own history" on history
   using (user_id = auth.uid())
   with check (user_id = auth.uid());
 
-create index if not exists entries_user_kind_due on entries (user_id, kind, due_at);
+create index if not exists entries_user_kind on entries (user_id, kind);
 create index if not exists entries_tags_gin      on entries using gin (tags);
 create index if not exists history_user_ts       on history (user_id, ts);

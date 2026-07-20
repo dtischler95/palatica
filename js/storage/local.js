@@ -51,6 +51,7 @@ export const local = (function(){
       async upsertEntries(_entries, snapshot){ write(snapshot); },
       async deleteEntries(_ids, snapshot){ write(snapshot); },
       async insertHistory(_event, snapshot){ write(snapshot); },
+      async deleteHistory(_ids, snapshot){ write(snapshot); },
       async replaceAll(snapshot){ write(snapshot); }
     };
   }
